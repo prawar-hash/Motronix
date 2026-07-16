@@ -1,0 +1,349 @@
+import React, { useState, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { listingsApi } from '../api/listingsApi';
+import { AuthContext } from '../context/AuthContext';
+import { Bike, Sparkles, Upload, Loader2, ArrowLeft, ShieldAlert, Check } from 'lucide-react';
+
+// Client-side replica of the fallback pricing logic for instant user feedback
+const calculateMockFairPrice = (brand, year, mileage, condition) => {
+  const brandMultipliers = {
+    'trek': 1.0, 'specialized': 1.1, 'giant': 0.9,
+    'cannondale': 1.05, 'santa cruz': 1.3, 'other': 0.8
+  };
+  const condScores = { 'Poor': 1, 'Fair': 2, 'Good': 3, 'Excellent': 4 };
+  
+  const brand_clean = String(brand || 'other').trim().lower();
+  const current_year = 2026;
+  const age = Math.max(0, current_year - parseInt(year || current_year));
+  const cond_score = condScores[condition] || 3;
+  
+  const base_price = 1000.0;
+  const brand_mult = brandMultipliers[brand_clean] || brandMultipliers['other'];
+  
+  const age_depreciation = age * 80.0;
+  const mileage_depreciation = parseFloat(mileage || 0) * 0.05;
+  const condition_mult = cond_score / 3.0;
+  
+  const predicted = (base_price * brand_mult - age_depreciation - mileage_depreciation) * condition_mult;
+  return Math.max(50.0, Math.round(predicted));
+};
+
+const CreateListing = () => {
+  const { isAuthenticated } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  // Form states
+  const [brand, setBrand] = useState('');
+  const [model, setModel] = useState('');
+  const [year, setYear] = useState('2024');
+  const [mileage, setMileage] = useState('');
+  const [condition, setCondition] = useState('Good');
+  const [askingPrice, setAskingPrice] = useState('');
+  const [city, setCity] = useState('');
+  const [description, setDescription] = useState('');
+  const [images, setImages] = useState([]);
+  
+  // App states
+  const [uploading, setUploading] = useState(false);
+  const [submitLoading, setSubmitLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  // Live price estimate
+  const liveEstimate = (brand && year && mileage !== '') 
+    ? calculateMockFairPrice(brand, year, mileage, condition) 
+    : 0;
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    
+    // Size check
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Image exceeds the 5MB size limit.");
+      return;
+    }
+
+    setUploading(true);
+    setError(null);
+    try {
+      const data = await listingsApi.uploadImage(file);
+      setImages([data.url]); // Set listing image
+    } catch (err) {
+      setError(err.response?.data?.error || "Image upload failed. Check file type (JPEG, PNG, WEBP).");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!isAuthenticated) return;
+    
+    setSubmitLoading(true);
+    setError(null);
+
+    const payload = {
+      brand: brand.trim(),
+      model: model.trim(),
+      year: parseInt(year),
+      mileage: parseFloat(mileage),
+      condition,
+      asking_price: parseFloat(askingPrice),
+      city: city.trim(),
+      description: description.trim(),
+      images
+    };
+
+    try {
+      await listingsApi.createListing(payload);
+      navigate('/marketplace');
+    } catch (err) {
+      setError(
+        err.response?.data?.brand?.[0] || 
+        err.response?.data?.year?.[0] ||
+        err.response?.data?.mileage?.[0] ||
+        err.response?.data?.asking_price?.[0] ||
+        "Failed to post listing. Please inspect fields."
+      );
+    } finally {
+      setSubmitLoading(false);
+    }
+  };
+
+  if (!isAuthenticated) {
+    return (
+      <div className="max-w-md mx-auto my-16 bg-dark-surface border border-dark-border rounded-2xl p-8 text-center space-y-6">
+        <ShieldAlert className="w-12 h-12 text-amber-400 mx-auto" />
+        <h2 className="text-xl font-bold text-white">Authentication Required</h2>
+        <p className="text-sm text-gray-400">You must be signed in to post a listing on the marketplace.</p>
+        <div className="flex justify-center space-x-4">
+          <Link to="/login" className="bg-primary text-white py-2.5 px-6 rounded-xl text-xs font-bold">
+            Sign In
+          </Link>
+          <Link to="/signup" className="bg-dark-border text-gray-300 py-2.5 px-6 rounded-xl text-xs font-bold">
+            Join Free
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <button onClick={() => navigate(-1)} className="inline-flex items-center space-x-1 text-sm text-gray-400 hover:text-white">
+          <ArrowLeft className="w-4 h-4" />
+          <span>Back</span>
+        </button>
+        <h1 className="text-2xl font-black text-white">List Your Bike</h1>
+      </div>
+
+      {/* Main Layout */}
+      <form onSubmit={handleSubmit} className="grid md:grid-cols-12 gap-8">
+        {/* Left Col: Details */}
+        <div className="md:col-span-8 bg-dark-surface border border-dark-border rounded-2xl p-6 shadow-md space-y-6">
+          
+          {error && (
+            <div className="bg-rose-500/10 border border-rose-500/20 text-rose-400 p-3.5 rounded-xl text-xs flex items-start space-x-2">
+              <ShieldAlert className="w-4.5 h-4.5 shrink-0 mt-0.5" />
+              <span>{error}</span>
+            </div>
+          )}
+
+          <div className="grid sm:grid-cols-2 gap-4">
+            {/* Brand */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Brand Name</label>
+              <input
+                type="text"
+                required
+                placeholder="e.g. Trek, Giant, Specialized"
+                value={brand}
+                onChange={(e) => setBrand(e.target.value)}
+                className="w-full bg-dark-bg border border-dark-border rounded-xl py-3 px-4 text-white text-sm focus:outline-none focus:border-primary"
+              />
+            </div>
+            
+            {/* Model */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Model Name</label>
+              <input
+                type="text"
+                required
+                placeholder="e.g. Domane AL 2, Stumpjumper"
+                value={model}
+                onChange={(e) => setModel(e.target.value)}
+                className="w-full bg-dark-bg border border-dark-border rounded-xl py-3 px-4 text-white text-sm focus:outline-none focus:border-primary"
+              />
+            </div>
+          </div>
+
+          <div className="grid sm:grid-cols-3 gap-4">
+            {/* Year */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Year</label>
+              <input
+                type="number"
+                required
+                placeholder="2024"
+                value={year}
+                onChange={(e) => setYear(e.target.value)}
+                className="w-full bg-dark-bg border border-dark-border rounded-xl py-3 px-4 text-white text-sm focus:outline-none focus:border-primary"
+              />
+            </div>
+            
+            {/* Mileage */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Mileage (mi)</label>
+              <input
+                type="number"
+                required
+                placeholder="0"
+                value={mileage}
+                onChange={(e) => setMileage(e.target.value)}
+                className="w-full bg-dark-bg border border-dark-border rounded-xl py-3 px-4 text-white text-sm focus:outline-none focus:border-primary"
+              />
+            </div>
+
+            {/* Condition */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Condition</label>
+              <select
+                value={condition}
+                onChange={(e) => setCondition(e.target.value)}
+                className="w-full bg-dark-bg border border-dark-border text-white rounded-xl py-3 px-4 text-sm focus:outline-none focus:border-primary"
+              >
+                <option value="Excellent">Excellent</option>
+                <option value="Good">Good</option>
+                <option value="Fair">Fair</option>
+                <option value="Poor">Poor</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="grid sm:grid-cols-2 gap-4">
+            {/* City */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">City</label>
+              <input
+                type="text"
+                required
+                placeholder="e.g. Seattle, WA"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                className="w-full bg-dark-bg border border-dark-border rounded-xl py-3 px-4 text-white text-sm focus:outline-none focus:border-primary"
+              />
+            </div>
+
+            {/* Asking Price */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Asking Price ($)</label>
+              <input
+                type="number"
+                required
+                placeholder="e.g. 850"
+                value={askingPrice}
+                onChange={(e) => setAskingPrice(e.target.value)}
+                className="w-full bg-dark-bg border border-dark-border rounded-xl py-3 px-4 text-white text-sm focus:outline-none focus:border-primary"
+              />
+            </div>
+          </div>
+
+          {/* Description */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Description</label>
+            <textarea
+              placeholder="Provide details about specs, minor scratches, upgrades, and maintenance history..."
+              rows={4}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="w-full bg-dark-bg border border-dark-border rounded-xl py-3 px-4 text-white text-sm focus:outline-none focus:border-primary"
+            />
+          </div>
+
+          {/* Image Upload */}
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Upload Photo</label>
+            <div className="flex items-center gap-4">
+              <label className="flex items-center space-x-2 bg-dark-bg hover:bg-dark-bg/80 border border-dark-border hover:border-gray-500 rounded-xl py-3 px-5 text-sm font-semibold cursor-pointer text-gray-300 transition-colors">
+                <Upload className="w-4 h-4 text-primary" />
+                <span>Choose Image</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="hidden"
+                />
+              </label>
+              {uploading && <Loader2 className="w-5 h-5 text-primary animate-spin" />}
+              {images.length > 0 && (
+                <div className="flex items-center space-x-1.5 text-xs text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-lg">
+                  <Check className="w-3.5 h-3.5" />
+                  <span>Photo Uploaded</span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Right Col: AI Valuation Feedback */}
+        <div className="md:col-span-4 space-y-6">
+          <div className="bg-dark-surface border border-dark-border rounded-2xl p-6 shadow-md space-y-4">
+            <h3 className="font-bold text-white flex items-center space-x-1.5 border-b border-dark-border/40 pb-3.5">
+              <Sparkles className="w-4.5 h-4.5 text-primary" />
+              <span>Live AI Valuation</span>
+            </h3>
+
+            {liveEstimate > 0 ? (
+              <div className="space-y-4">
+                <div className="bg-dark-bg/60 border border-dark-border p-4 rounded-xl text-center">
+                  <p className="text-[10px] text-gray-500 uppercase font-bold">Estimated Fair Price</p>
+                  <p className="text-2xl font-black text-emerald-400">${liveEstimate.toLocaleString()}</p>
+                </div>
+
+                {askingPrice && (
+                  <div className="text-xs space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-gray-400 font-medium">Asking Price:</span>
+                      <span className="text-white font-bold">${parseFloat(askingPrice).toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-400 font-medium">Difference:</span>
+                      <span className={`font-bold ${askingPrice > liveEstimate * 1.15 ? 'text-rose-400' : askingPrice < liveEstimate * 0.85 ? 'text-sky-400' : 'text-emerald-400'}`}>
+                        {(((askingPrice - liveEstimate) / liveEstimate) * 100).toFixed(0)}%
+                      </span>
+                    </div>
+                    
+                    <p className="text-gray-400 leading-relaxed text-[11px] pt-2 border-t border-dark-border/40">
+                      {askingPrice > liveEstimate * 1.15 
+                        ? "Notice: Your asking price is overpriced. It sits > 15% above target market rates."
+                        : askingPrice < liveEstimate * 0.85 
+                        ? "Notice: This listing represents an underpriced bargain. High buyer interest is expected."
+                        : "Notice: Your listing price is fair. It sit within typical valuation ranges."}
+                    </p>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <p className="text-xs text-gray-400 leading-relaxed py-4 text-center">
+                Input brand, manufacturing year, and mileage to generate a real-time price estimation.
+              </p>
+            )}
+
+            <button
+              type="submit"
+              disabled={submitLoading || uploading}
+              className="w-full bg-primary hover:bg-primary-hover disabled:bg-gray-600 text-white font-bold py-3.5 rounded-xl text-sm transition-all shadow-md shadow-orange-500/10 flex items-center justify-center space-x-1.5"
+            >
+              {submitLoading && <Loader2 className="w-4 h-4 animate-spin" />}
+              <span>{submitLoading ? 'Posting Listing...' : 'Publish Listing'}</span>
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  );
+};
+
+export default CreateListing;
