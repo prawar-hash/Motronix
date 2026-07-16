@@ -177,7 +177,7 @@ const CreateListing = () => {
           <ArrowLeft className="w-4 h-4" />
           <span>Back</span>
         </button>
-        <h1 className="text-2xl font-black text-white uppercase tracking-tight">Create Listing</h1>
+        <h1 className="text-2xl font-black text-white uppercase tracking-tight font-serif">Create Listing</h1>
       </div>
 
       {/* Main Form */}

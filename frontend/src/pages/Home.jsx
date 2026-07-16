@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Sparkles, ShieldCheck, DollarSign, Wrench, Shield, ArrowRight, Trophy, Star, ShieldAlert, Award, FileText } from 'lucide-react';
+import { Sparkles, ShieldCheck, DollarSign, Wrench, Shield, ArrowRight, Trophy, Star, ShieldAlert, Award, FileText, Gauge } from 'lucide-react';
 
 const Home = () => {
   // AI Feature definitions with navigation endpoints
@@ -58,13 +58,12 @@ const Home = () => {
         {/* Full-width Highway Background Image */}
         <div className="absolute inset-0 z-0">
           <img
-            src="https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=1600&q=80"
+            src="/hero-bg.png"
             alt="Sports bike on highway"
-            className="w-full h-full object-cover opacity-80"
+            className="w-full h-full object-cover opacity-90"
           />
-          {/* Radial Dark Gradient Mask Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/80 to-transparent"></div>
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+          {/* Radial Vignette: leaves center bright, shadows the edges/corners into #0f0f0f */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_25%,#0f0f0f_85%)]"></div>
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full grid lg:grid-cols-12 gap-12 items-center">
@@ -185,7 +184,18 @@ const Home = () => {
       </section>
 
       {/* 6. WHY MOTRONIX SECTION - Mountain background texture matching screenshot */}
-      <section className="relative py-24 bg-gradient-to-b from-black via-neutral-950 to-black border-t border-dark-border/30 text-center space-y-16">
+      <section className="relative py-24 overflow-hidden border-t border-b border-dark-border/30 text-center space-y-16">
+        {/* Mountain Background Image */}
+        <div className="absolute inset-0 z-0">
+          <img
+            src="/why-motronix-bg.png"
+            alt="Mountain range"
+            className="w-full h-full object-cover opacity-90"
+          />
+          {/* Radial Vignette: leaves center bright, shadows the edges/corners into #0f0f0f */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_30%,#0f0f0f_85%)]"></div>
+        </div>
+
         <div className="relative z-10 space-y-3">
           <h2 className="text-4xl font-black text-white uppercase tracking-tight font-serif">Why Motronix</h2>
           <div className="w-16 h-[2px] bg-primary mx-auto"></div>
@@ -207,34 +217,37 @@ const Home = () => {
         </div>
       </section>
 
-      {/* 7. CALL TO ACTION (CTA) - Royal Enfield Mountain Sunset background style */}
-      <section className="relative min-h-[50vh] flex items-center justify-center overflow-hidden border-t border-b border-dark-border/20 py-20">
+      {/* 7. CALL TO ACTION (CTA) - Custom background with vignette corner shadows */}
+      <section className="relative min-h-[60vh] flex items-center overflow-hidden border-t border-b border-dark-border/20 py-24 bg-black">
         <div className="absolute inset-0 z-0">
           <img
-            src="https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=1600&q=80"
+            src="/cta-bg.png"
             alt="Royal Enfield sunset"
-            className="w-full h-full object-cover opacity-50"
+            className="w-full h-full object-cover opacity-90"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-black via-black/80 to-black"></div>
+          {/* Radial Vignette: leaves center bright, shadows the edges/corners into #0f0f0f */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_30%,#0f0f0f_85%)]"></div>
         </div>
 
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6 relative z-10">
-          <h2 className="text-4xl sm:text-6xl font-black text-white tracking-tight uppercase leading-none font-serif">
-            Find Your Perfect <br /> Bike Today
-          </h2>
-          <div className="w-16 h-[2px] bg-primary mx-auto my-2"></div>
-          <p className="text-xs sm:text-sm font-bold text-gray-300 max-w-xl mx-auto leading-relaxed tracking-tight">
-            Run the 10-parameter matchmaker wizard or check active diagnostic OBD logs under 2 minutes.
-          </p>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full text-left">
+          <div className="max-w-xl space-y-6">
+            <h2 className="text-4xl sm:text-6xl font-black text-white tracking-tight uppercase leading-none font-serif">
+              Find Your Perfect <br /> Bike Today
+            </h2>
+            <div className="w-16 h-[2px] bg-primary"></div>
+            <p className="text-xs sm:text-sm font-bold text-gray-300 leading-relaxed tracking-tight">
+              Run the 10-parameter matchmaker wizard or check active diagnostic OBD logs under 2 minutes.
+            </p>
 
-          <div className="pt-4">
-            <Link
-              to="/recommendations"
-              className="bg-primary hover:bg-primary-hover text-black font-black px-8 py-4 rounded-lg text-xs uppercase tracking-widest transition-all inline-flex items-center space-x-2"
-            >
-              <span>Get Started</span>
-              <ArrowRight className="w-4 h-4" />
-            </Link>
+            <div className="pt-4">
+              <Link
+                to="/recommendations"
+                className="bg-primary hover:bg-primary-hover text-black font-black px-8 py-4 rounded-lg text-xs uppercase tracking-widest transition-all inline-flex items-center space-x-2"
+              >
+                <span>Get Started</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
           </div>
         </div>
       </section>

@@ -111,7 +111,7 @@ const ListingDetail = () => {
           </div>
 
           <div className="bg-slate-900 border border-dark-border rounded-2xl p-6 shadow-md space-y-4">
-            <h2 className="text-xl font-bold text-white uppercase tracking-tight">Seller Description</h2>
+            <h2 className="text-xl font-bold text-white uppercase tracking-tight font-serif">Seller Description</h2>
             <p className="text-gray-300 text-sm leading-relaxed whitespace-pre-line">
               {listing.description || "The seller has not provided a detailed description for this bike."}
             </p>
@@ -129,7 +129,7 @@ const ListingDetail = () => {
             </div>
 
             <div className="space-y-1">
-              <h1 className="text-3xl font-black text-white">{listing.brand}</h1>
+              <h1 className="text-3xl font-black text-white font-serif">{listing.brand}</h1>
               <p className="text-lg text-gray-400 font-medium">{listing.model}</p>
             </div>
 
@@ -173,7 +173,7 @@ const ListingDetail = () => {
               </div>
               
               {!isOwner && (
-                <button className="w-full bg-primary hover:bg-primary-hover text-white text-sm font-bold py-3.5 rounded-lg transition-colors">
+                <button className="w-full bg-primary hover:bg-primary-hover text-black text-xs font-black uppercase tracking-widest py-3.5 rounded-lg transition-colors">
                   Contact Seller
                 </button>
               )}
@@ -195,7 +195,7 @@ const ListingDetail = () => {
           {/* AI Price prediction */}
           {predictedPrice > 0 && (
             <div className="bg-slate-900 border border-dark-border rounded-2xl p-6 shadow-md space-y-4">
-              <h3 className="font-bold text-white flex items-center space-x-1.5">
+              <h3 className="font-bold text-white flex items-center space-x-1.5 font-serif uppercase tracking-wider text-xs">
                 <Sparkles className="w-4 h-4 text-primary" />
                 <span>AI Valuation Engine (INR)</span>
               </h3>

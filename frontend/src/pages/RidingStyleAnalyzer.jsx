@@ -105,7 +105,7 @@ const RidingStyleAnalyzer = () => {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
         <div>
-          <h1 className="text-3xl font-black text-white">Riding Style Classifier</h1>
+          <h1 className="text-4xl font-black text-white font-serif uppercase tracking-tight">Riding Style Classifier</h1>
           <p className="text-gray-400 text-sm">Upload speed and acceleration sensor metrics (CSV) to analyze safety behavior.</p>
         </div>
         
@@ -125,7 +125,7 @@ const RidingStyleAnalyzer = () => {
         <div className="lg:col-span-8 space-y-8">
           {/* Telemetry Upload panel */}
           <div className="bg-dark-surface border border-dark-border rounded-2xl p-6 shadow-md space-y-4">
-            <h2 className="text-lg font-bold text-white flex items-center space-x-2">
+            <h2 className="text-lg font-bold text-white flex items-center space-x-2 font-serif uppercase tracking-wider text-xs">
               <Upload className="w-5 h-5 text-primary" />
               <span>Upload Ride Telemetry Log</span>
             </h2>
@@ -223,7 +223,7 @@ const RidingStyleAnalyzer = () => {
 
         {/* Right Column: Upload History list */}
         <div className="lg:col-span-4 bg-dark-surface border border-dark-border rounded-2xl p-6 shadow-md h-fit space-y-4">
-          <h2 className="text-lg font-bold text-white border-b border-dark-border/40 pb-3">
+          <h2 className="text-lg font-bold text-white border-b border-dark-border/40 pb-3 font-serif uppercase tracking-wider text-xs">
             Analysis Logs History
           </h2>
 

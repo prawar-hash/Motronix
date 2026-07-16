@@ -222,7 +222,7 @@ const Maintenance = () => {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
         <div>
-          <h1 className="text-3xl font-black text-white uppercase tracking-tight flex items-center space-x-2">
+          <h1 className="text-3xl font-black text-white uppercase tracking-tight flex items-center space-x-2 font-serif">
             <Wrench className="w-8 h-8 text-primary" />
             <span>Garage Diagnostic Terminal</span>
           </h1>
@@ -246,7 +246,7 @@ const Maintenance = () => {
               OBD-II SCANNER
             </div>
 
-            <h2 className="text-lg font-black text-white flex items-center space-x-2 uppercase tracking-tight">
+            <h2 className="text-lg font-black text-white flex items-center space-x-2 uppercase tracking-tight font-serif">
               <Sparkles className="w-5 h-5 text-primary" />
               <span>Diagnostic Forecast Run</span>
             </h2>
@@ -352,7 +352,7 @@ const Maintenance = () => {
 
           {/* Service Timeline Job Cards */}
           <div className="bg-slate-900 border border-dark-border rounded-2xl p-6 shadow-md space-y-4">
-            <h2 className="text-lg font-black text-white uppercase tracking-tight">Active Garage Work Orders</h2>
+            <h2 className="text-lg font-black text-white uppercase tracking-tight font-serif">Active Garage Work Orders</h2>
 
             {recordsLoading ? (
               <BikeLoader message="Fetching Active Work Orders..." />
@@ -424,7 +424,7 @@ const Maintenance = () => {
 
         {/* Right Column: Log Repair Form (Job Card Logger / Editor) */}
         <div id="job-card-form-container" className="lg:col-span-4 bg-slate-900 border border-dark-border rounded-2xl p-6 shadow-md h-fit space-y-6">
-          <h2 className="text-lg font-black text-white flex items-center space-x-1.5 border-b border-dark-border/40 pb-3 uppercase tracking-tight">
+          <h2 className="text-lg font-black text-white flex items-center space-x-1.5 border-b border-dark-border/40 pb-3 uppercase tracking-tight font-serif">
             {editingRecordId ? <Edit className="w-5 h-5 text-primary" /> : <Plus className="w-5 h-5 text-primary" />}
             <span>{editingRecordId ? 'Edit Job Card' : 'Create Job Card'}</span>
           </h2>

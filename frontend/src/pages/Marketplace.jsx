@@ -66,7 +66,7 @@ const Marketplace = () => {
       {/* Page Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
         <div>
-          <h1 className="text-3xl font-black text-white uppercase tracking-tight">Ecosystem Showroom</h1>
+          <h1 className="text-4xl font-black text-white uppercase tracking-tight font-serif">Ecosystem Showroom</h1>
           <p className="text-gray-400 text-sm">Explore verified bike listings analyzed by our valuation diagnostics.</p>
         </div>
       </div>

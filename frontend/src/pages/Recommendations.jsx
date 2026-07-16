@@ -194,7 +194,7 @@ const Recommendations = () => {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-black text-white uppercase tracking-tight">Motronix Matchmaker</h1>
+          <h1 className="text-4xl font-black text-white uppercase tracking-tight font-serif">Motronix Matchmaker</h1>
           <p className="text-gray-400 text-sm">Find your optimal bike match using our 10-parameter similarity calculator.</p>
         </div>
         {step > 1 && (
@@ -240,7 +240,7 @@ const Recommendations = () => {
           {/* Step 1: Budget Range Sliders */}
           {step === 1 && (
             <div className="space-y-8 animate-fade-in">
-              <h3 className="text-xl font-bold text-white border-b border-dark-border/40 pb-3 flex items-center space-x-2">
+              <h3 className="text-xl font-bold text-white border-b border-dark-border/40 pb-3 flex items-center space-x-2 font-serif">
                 <Sliders className="w-5 h-5 text-primary" />
                 <span>Step 1: Slide Budget Range</span>
               </h3>
@@ -298,7 +298,7 @@ const Recommendations = () => {
           {/* Step 2: Ride Profile */}
           {step === 2 && (
             <div className="space-y-6">
-              <h3 className="text-xl font-bold text-white border-b border-dark-border/40 pb-3">Step 2: Tell Us About Your Rides</h3>
+              <h3 className="text-xl font-bold text-white border-b border-dark-border/40 pb-3 font-serif">Step 2: Tell Us About Your Rides</h3>
               <div className="grid sm:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Usage Type</label>
@@ -332,7 +332,7 @@ const Recommendations = () => {
           {/* Step 3: Specs Preferences */}
           {step === 3 && (
             <div className="space-y-6">
-              <h3 className="text-xl font-bold text-white border-b border-dark-border/40 pb-3">Step 3: Technical Preferences</h3>
+              <h3 className="text-xl font-bold text-white border-b border-dark-border/40 pb-3 font-serif">Step 3: Technical Preferences</h3>
               <div className="grid sm:grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Bike Type</label>
@@ -377,7 +377,7 @@ const Recommendations = () => {
           {/* Step 4: Priorities */}
           {step === 4 && (
             <div className="space-y-6">
-              <h3 className="text-xl font-bold text-white border-b border-dark-border/40 pb-3">Step 4: Priorities & Financials</h3>
+              <h3 className="text-xl font-bold text-white border-b border-dark-border/40 pb-3 font-serif">Step 4: Priorities & Financials</h3>
               <div className="grid sm:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Riding Priority</label>
@@ -448,7 +448,7 @@ const Recommendations = () => {
             {step < totalSteps ? (
               <button
                 onClick={handleNext}
-                className="bg-primary hover:bg-primary-hover text-white font-bold px-6 py-3 rounded-xl text-xs uppercase tracking-wider transition-colors flex items-center space-x-1"
+                className="bg-primary hover:bg-primary-hover text-black px-6 py-3 rounded-lg text-xs font-black uppercase tracking-widest transition-colors flex items-center space-x-1"
               >
                 <span>Continue</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -456,7 +456,7 @@ const Recommendations = () => {
             ) : (
               <button
                 onClick={handleSubmitWizard}
-                className="bg-primary hover:bg-primary-hover text-white font-black px-8 py-3.5 rounded-xl text-xs uppercase tracking-wider transition-all flex items-center space-x-1.5 shadow-lg shadow-orange-500/10"
+                className="bg-primary hover:bg-primary-hover text-black font-black px-8 py-3.5 rounded-lg text-xs uppercase tracking-widest transition-all flex items-center space-x-1.5 shadow-lg shadow-orange-950/20"
               >
                 <Sparkles className="w-4 h-4" />
                 <span>Calculate Recommendations</span>
@@ -483,8 +483,8 @@ const Recommendations = () => {
       {step === 5 && !loading && results.length > 0 && (
         <div className="space-y-6 animate-fade-in">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <h2 className="text-xl font-bold text-white flex items-center space-x-2 uppercase tracking-tight">
-              <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+            <h2 className="text-xl font-bold text-white flex items-center space-x-2 uppercase tracking-tight font-serif">
+              <CheckCircle2 className="w-5 h-5 text-primary" />
               <span>Recommended Bikes for You</span>
             </h2>
             
@@ -613,8 +613,8 @@ const Recommendations = () => {
       {comparisonBikes.length > 0 && (
         <section id="comparison-section" className="bg-slate-900 border border-dark-border rounded-2xl p-6 shadow-xl space-y-6">
           <div className="flex items-center justify-between border-b border-dark-border/40 pb-4">
-            <h3 className="text-xl font-bold text-white flex items-center space-x-2">
-              <Layers className="w-5 h-5 text-primary animate-pulse" />
+            <h3 className="text-xl font-bold text-white flex items-center space-x-2 font-serif uppercase tracking-wider text-sm">
+              <Layers className="w-5 h-5 text-primary" />
               <span>Spec-Comparison Table</span>
             </h3>
             <button

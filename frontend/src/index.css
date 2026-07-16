@@ -1,12 +1,16 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #22c55e;      /* Kawasaki green */
-  --color-primary-hover: #16a34a;/* Kawasaki green hover */
-  --color-dark-bg: #090d16;       /* Deep dashboard black */
-  --color-dark-surface: #111827;  /* Deep surface gray */
-  --color-dark-border: #1f2937;   /* Deep border gray */
-  --color-dark-card: #111827;
+  --font-serif: "Playfair Display", Georgia, serif;
+  --font-sans: "Plus Jakarta Sans", sans-serif;
+  
+  --color-primary: #b59c77;      /* Metallic gold/bronze */
+  --color-primary-hover: #9c8461;/* Metallic gold/bronze hover */
+  --color-dark-bg: #0f0f0f;       /* Deep charcoal background */
+  --color-dark-surface: #171717;  /* Deep charcoal surface */
+  --color-dark-border: #262626;   /* Deep charcoal border */
+  --color-dark-card: #171717;
 }
 
 /* Global scrollbar styling */
@@ -15,18 +19,23 @@
   height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #090d16;
+  background: #0f0f0f;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1f2937;
+  background: #262626;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #22c55e;
+  background: #b59c77;
 }
 
 body {
-  background-color: #090d16;
-  color: #f8fafc;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background-color: #0f0f0f;
+  color: #f5f5f5;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Playfair Display', Georgia, serif;
 }
