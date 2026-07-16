@@ -5,54 +5,49 @@ import numpy as np
 
 MODEL_PATH = os.path.join(os.path.dirname(__file__), 'saved_models', 'riding_style_model.joblib')
 
-# Sample CSV template content
+# Sample CSV template content in km/h
 CSV_TEMPLATE_CONTENT = """timestamp,speed,acceleration,braking_event
-0,5.0,0.5,0
-1,8.0,3.0,0
-2,12.0,4.0,0
-3,15.0,3.0,0
-4,16.5,1.5,0
-5,17.0,0.5,0
-6,17.2,0.2,0
-7,12.0,-5.2,1
-8,6.0,-6.0,1
-9,7.5,1.5,0
-10,8.0,0.5,0
+0,10.0,0.5,0
+1,18.0,3.0,0
+2,25.0,4.0,0
+3,30.0,3.0,0
+4,35.5,1.5,0
+5,40.0,0.5,0
+6,42.2,0.2,0
+7,25.0,-5.2,1
+8,10.0,-6.0,1
+9,15.5,1.5,0
+10,20.0,0.5,0
 """
 
 def get_csv_template() -> str:
-    """Returns the raw CSV template string for riding data."""
+    """Returns the raw CSV template string for riding data in km/h."""
     return CSV_TEMPLATE_CONTENT
 
 def classify_riding_style(file_path: str) -> dict:
-    """Parses a ride data CSV, extracts key features, and classifies the riding style."""
+    """Parses a ride data CSV, extracts key features, and classifies the riding style (speeds in km/h)."""
     try:
-        # Load CSV using pandas
         df = pd.read_csv(file_path)
         
-        # Verify columns exist
         required_cols = {'timestamp', 'speed', 'acceleration', 'braking_event'}
         if not required_cols.issubset(df.columns):
             raise ValueError(f"CSV file must contain all required columns: {required_cols}")
             
-        # Feature extraction
         avg_speed = float(df['speed'].mean())
         max_speed = float(df['speed'].max())
         accel_var = float(df['acceleration'].var())
         if np.isnan(accel_var):
             accel_var = 0.0
             
-        # Count harsh braking (where braking_event is 1 and acceleration is negative)
         harsh_braking_count = int(((df['braking_event'] == 1) & (df['acceleration'] < -2.0)).sum())
         
         features_dict = {
-            'avg_speed': round(avg_speed, 2),
-            'max_speed': round(max_speed, 2),
+            'avg_speed': round(avg_speed, 2), # km/h
+            'max_speed': round(max_speed, 2), # km/h
             'accel_variance': round(accel_var, 3),
             'harsh_braking_count': harsh_braking_count
         }
         
-        # Check if Random Forest classifier model exists
         classification = None
         if os.path.exists(MODEL_PATH):
             try:
@@ -72,29 +67,28 @@ def classify_riding_style(file_path: str) -> dict:
             except Exception:
                 pass
                 
-        # Rule-based fallback if model is missing or fails
+        # Rule-based fallback if model is missing or fails (calibrated in km/h)
         if not classification:
-            if harsh_braking_count >= 5 or accel_var > 1.5 or max_speed > 25.0:
+            if harsh_braking_count >= 5 or accel_var > 1.5 or max_speed > 75.0:
                 classification = 'Aggressive'
-            elif harsh_braking_count >= 2 or accel_var > 0.6 or max_speed > 16.0:
+            elif harsh_braking_count >= 2 or accel_var > 0.6 or max_speed > 45.0:
                 classification = 'Moderate'
             else:
                 classification = 'Calm'
                 
-        # Define actionable suggestions based on classification and features
         suggestions = []
         if classification == 'Aggressive':
-            suggestions.append("Your riding style is Aggressive. Try to reduce rapid throttle/pedal transitions.")
-            suggestions.append("High brake wear: You logged multiple harsh braking events. Anticipate stops ahead to brake smoothly.")
-            suggestions.append("Tire preservation: Easing acceleration variance will extend tire life by up to 25%.")
+            suggestions.append("Your riding style is Aggressive. Easing acceleration variance will save tire rubber and chain stress.")
+            suggestions.append("Anticipate traffic: Hard deceleration and braking detected. Slow down in advance to save brake pads.")
+            suggestions.append("Fuel efficiency: Smooth throttle control can improve fuel economy by up to 15% (3-5 km/l).")
         elif classification == 'Moderate':
-            suggestions.append("Your riding style is Moderate. Maintain steady speeds for better efficiency.")
-            suggestions.append("Brake optimization: Try to limit braking events above 3m/s^2 deceleration.")
-            suggestions.append("Drivetrain care: Clean and lube your chain to ensure smooth shifting.")
+            suggestions.append("Your riding style is Moderate. Maintain a steady throttle for optimal km/l mileage.")
+            suggestions.append("Safety: Try to avoid hard braking events on wet or gravel road conditions.")
+            suggestions.append("Chassis care: Inspect chain slack and lube every 800 km.")
         else:
-            suggestions.append("Your riding style is Calm. Excellent pacing and smooth handling!")
-            suggestions.append("Fuel/Battery efficiency: Your smooth speed curve maximizes energy range.")
-            suggestions.append("Component durability: Minimal stress detected on brake pads and tires.")
+            suggestions.append("Your riding style is Calm. Great job! Smooth pacing maximizes safety and economy.")
+            suggestions.append("Engine lifespan: Low heat generated in the engine ensures oil retains viscosity longer.")
+            suggestions.append("Cost savings: Minimum wear and tear detected on tires and brake components.")
             
         return {
             'riding_style': classification,

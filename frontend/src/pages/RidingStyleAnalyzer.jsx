@@ -190,11 +190,11 @@ const RidingStyleAnalyzer = () => {
                 <p className="text-xs font-bold text-gray-400 uppercase tracking-wide">Extracted Ride Metrics:</p>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
                   <div className="bg-dark-bg/60 border border-dark-border p-4 rounded-xl">
-                    <p className="text-xs font-black text-white">{analysisResult.features.avg_speed} mph</p>
+                    <p className="text-xs font-black text-white">{analysisResult.features.avg_speed} km/h</p>
                     <p className="text-[10px] text-gray-500 uppercase mt-1">Average Speed</p>
                   </div>
                   <div className="bg-dark-bg/60 border border-dark-border p-4 rounded-xl">
-                    <p className="text-xs font-black text-white">{analysisResult.features.max_speed} mph</p>
+                    <p className="text-xs font-black text-white">{analysisResult.features.max_speed} km/h</p>
                     <p className="text-[10px] text-gray-500 uppercase mt-1">Maximum Speed</p>
                   </div>
                   <div className="bg-dark-bg/60 border border-dark-border p-4 rounded-xl">

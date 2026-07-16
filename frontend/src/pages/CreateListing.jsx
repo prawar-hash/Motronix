@@ -4,11 +4,13 @@ import { listingsApi } from '../api/listingsApi';
 import { AuthContext } from '../context/AuthContext';
 import { Bike, Sparkles, Upload, Loader2, ArrowLeft, ShieldAlert, Check } from 'lucide-react';
 
-// Client-side replica of the fallback pricing logic for instant user feedback
+// Indian-calibrated local pricing formula for immediate user feedback
 const calculateMockFairPrice = (brand, year, mileage, condition) => {
   const brandMultipliers = {
-    'trek': 1.0, 'specialized': 1.1, 'giant': 0.9,
-    'cannondale': 1.05, 'santa cruz': 1.3, 'other': 0.8
+    'royal enfield': 1.1, 'ktm': 1.05, 'yamaha': 1.0,
+    'bajaj': 0.85, 'hero': 0.8, 'honda': 1.0,
+    'suzuki': 1.2, 'kawasaki': 1.3, 'triumph': 1.4,
+    'harley-davidson': 1.5, 'other': 0.75
   };
   const condScores = { 'Poor': 1, 'Fair': 2, 'Good': 3, 'Excellent': 4 };
   
@@ -17,15 +19,15 @@ const calculateMockFairPrice = (brand, year, mileage, condition) => {
   const age = Math.max(0, current_year - parseInt(year || current_year));
   const cond_score = condScores[condition] || 3;
   
-  const base_price = 1000.0;
+  const base_price = 150000.0;
   const brand_mult = brandMultipliers[brand_clean] || brandMultipliers['other'];
   
-  const age_depreciation = age * 80.0;
-  const mileage_depreciation = parseFloat(mileage || 0) * 0.05;
+  const age_depreciation = age * 12000.0;
+  const mileage_depreciation = parseFloat(mileage || 0) * 1.50; // ₹1.5 per km depreciation
   const condition_mult = cond_score / 3.0;
   
   const predicted = (base_price * brand_mult - age_depreciation - mileage_depreciation) * condition_mult;
-  return Math.max(50.0, Math.round(predicted));
+  return Math.max(15000.0, Math.round(predicted));
 };
 
 const CreateListing = () => {
@@ -33,13 +35,13 @@ const CreateListing = () => {
   const navigate = useNavigate();
 
   // Form states
-  const [brand, setBrand] = useState('');
+  const [brand, setBrand] = useState('Royal Enfield');
   const [model, setModel] = useState('');
   const [year, setYear] = useState('2024');
   const [mileage, setMileage] = useState('');
   const [condition, setCondition] = useState('Good');
   const [askingPrice, setAskingPrice] = useState('');
-  const [city, setCity] = useState('');
+  const [city, setCity] = useState('Mumbai');
   const [description, setDescription] = useState('');
   const [images, setImages] = useState([]);
   
@@ -47,6 +49,10 @@ const CreateListing = () => {
   const [uploading, setUploading] = useState(false);
   const [submitLoading, setSubmitLoading] = useState(false);
   const [error, setError] = useState(null);
+
+  // List arrays
+  const brandsList = ['Royal Enfield', 'KTM', 'Yamaha', 'Bajaj', 'Hero', 'Honda', 'Suzuki', 'Kawasaki', 'Triumph', 'Harley-Davidson', 'Other'];
+  const citiesList = ['Mumbai', 'Delhi', 'Bangalore', 'Pune', 'Chennai', 'Kolkata', 'Hyderabad', 'Ahmedabad'];
 
   // Live price estimate
   const liveEstimate = (brand && year && mileage !== '') 
@@ -56,8 +62,7 @@ const CreateListing = () => {
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    
-    // Size check
+
     if (file.size > 5 * 1024 * 1024) {
       alert("Image exceeds the 5MB size limit.");
       return;
@@ -67,9 +72,9 @@ const CreateListing = () => {
     setError(null);
     try {
       const data = await listingsApi.uploadImage(file);
-      setImages([data.url]); // Set listing image
+      setImages([data.url]);
     } catch (err) {
-      setError(err.response?.data?.error || "Image upload failed. Check file type (JPEG, PNG, WEBP).");
+      setError(err.response?.data?.error || "Image upload failed. Try JPEG, PNG, or WEBP.");
     } finally {
       setUploading(false);
     }
@@ -83,13 +88,13 @@ const CreateListing = () => {
     setError(null);
 
     const payload = {
-      brand: brand.trim(),
+      brand,
       model: model.trim(),
       year: parseInt(year),
       mileage: parseFloat(mileage),
       condition,
       asking_price: parseFloat(askingPrice),
-      city: city.trim(),
+      city,
       description: description.trim(),
       images
     };
@@ -99,7 +104,7 @@ const CreateListing = () => {
       navigate('/marketplace');
     } catch (err) {
       setError(
-        err.response?.data?.brand?.[0] || 
+        err.response?.data?.model?.[0] || 
         err.response?.data?.year?.[0] ||
         err.response?.data?.mileage?.[0] ||
         err.response?.data?.asking_price?.[0] ||
@@ -112,17 +117,17 @@ const CreateListing = () => {
 
   if (!isAuthenticated) {
     return (
-      <div className="max-w-md mx-auto my-16 bg-dark-surface border border-dark-border rounded-2xl p-8 text-center space-y-6">
+      <div className="max-w-md mx-auto my-16 bg-slate-900 border border-dark-border rounded-2xl p-8 text-center space-y-6">
         <ShieldAlert className="w-12 h-12 text-amber-400 mx-auto" />
         <h2 className="text-xl font-bold text-white">Authentication Required</h2>
         <p className="text-sm text-gray-400">You must be signed in to post a listing on the marketplace.</p>
         <div className="flex justify-center space-x-4">
-          <Link to="/login" className="bg-primary text-white py-2.5 px-6 rounded-xl text-xs font-bold">
+          <a href="/login" className="bg-primary text-white py-2.5 px-6 rounded-xl text-xs font-bold">
             Sign In
-          </Link>
-          <Link to="/signup" className="bg-dark-border text-gray-300 py-2.5 px-6 rounded-xl text-xs font-bold">
+          </a>
+          <a href="/signup" className="bg-dark-border text-gray-300 py-2.5 px-6 rounded-xl text-xs font-bold">
             Join Free
-          </Link>
+          </a>
         </div>
       </div>
     );
@@ -136,13 +141,12 @@ const CreateListing = () => {
           <ArrowLeft className="w-4 h-4" />
           <span>Back</span>
         </button>
-        <h1 className="text-2xl font-black text-white">List Your Bike</h1>
+        <h1 className="text-2xl font-black text-white uppercase tracking-tight">Create Listing</h1>
       </div>
 
-      {/* Main Layout */}
+      {/* Main Form */}
       <form onSubmit={handleSubmit} className="grid md:grid-cols-12 gap-8">
-        {/* Left Col: Details */}
-        <div className="md:col-span-8 bg-dark-surface border border-dark-border rounded-2xl p-6 shadow-md space-y-6">
+        <div className="md:col-span-8 bg-slate-900 border border-dark-border rounded-2xl p-6 shadow-md space-y-6">
           
           {error && (
             <div className="bg-rose-500/10 border border-rose-500/20 text-rose-400 p-3.5 rounded-xl text-xs flex items-start space-x-2">
@@ -154,15 +158,14 @@ const CreateListing = () => {
           <div className="grid sm:grid-cols-2 gap-4">
             {/* Brand */}
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Brand Name</label>
-              <input
-                type="text"
-                required
-                placeholder="e.g. Trek, Giant, Specialized"
+              <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Brand</label>
+              <select
                 value={brand}
                 onChange={(e) => setBrand(e.target.value)}
-                className="w-full bg-dark-bg border border-dark-border rounded-xl py-3 px-4 text-white text-sm focus:outline-none focus:border-primary"
-              />
+                className="w-full bg-slate-950 border border-dark-border rounded-xl py-3 px-4 text-white text-sm focus:outline-none focus:border-primary"
+              >
+                {brandsList.map(b => <option key={b} value={b}>{b}</option>)}
+              </select>
             </div>
             
             {/* Model */}
@@ -171,10 +174,10 @@ const CreateListing = () => {
               <input
                 type="text"
                 required
-                placeholder="e.g. Domane AL 2, Stumpjumper"
+                placeholder="e.g. Classic 350, Pulsar 150"
                 value={model}
                 onChange={(e) => setModel(e.target.value)}
-                className="w-full bg-dark-bg border border-dark-border rounded-xl py-3 px-4 text-white text-sm focus:outline-none focus:border-primary"
+                className="w-full bg-slate-950 border border-dark-border rounded-xl py-3 px-4 text-white text-sm focus:outline-none focus:border-primary"
               />
             </div>
           </div>
@@ -182,27 +185,27 @@ const CreateListing = () => {
           <div className="grid sm:grid-cols-3 gap-4">
             {/* Year */}
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Year</label>
+              <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Manufacturing Year</label>
               <input
                 type="number"
                 required
                 placeholder="2024"
                 value={year}
                 onChange={(e) => setYear(e.target.value)}
-                className="w-full bg-dark-bg border border-dark-border rounded-xl py-3 px-4 text-white text-sm focus:outline-none focus:border-primary"
+                className="w-full bg-slate-950 border border-dark-border rounded-xl py-3 px-4 text-white text-sm focus:outline-none focus:border-primary"
               />
             </div>
             
             {/* Mileage */}
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Mileage (mi)</label>
+              <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Kms Run (km)</label>
               <input
                 type="number"
                 required
                 placeholder="0"
                 value={mileage}
                 onChange={(e) => setMileage(e.target.value)}
-                className="w-full bg-dark-bg border border-dark-border rounded-xl py-3 px-4 text-white text-sm focus:outline-none focus:border-primary"
+                className="w-full bg-slate-950 border border-dark-border rounded-xl py-3 px-4 text-white text-sm focus:outline-none focus:border-primary"
               />
             </div>
 
@@ -212,7 +215,7 @@ const CreateListing = () => {
               <select
                 value={condition}
                 onChange={(e) => setCondition(e.target.value)}
-                className="w-full bg-dark-bg border border-dark-border text-white rounded-xl py-3 px-4 text-sm focus:outline-none focus:border-primary"
+                className="w-full bg-slate-950 border border-dark-border text-white rounded-xl py-3 px-4 text-sm focus:outline-none focus:border-primary"
               >
                 <option value="Excellent">Excellent</option>
                 <option value="Good">Good</option>
@@ -225,27 +228,26 @@ const CreateListing = () => {
           <div className="grid sm:grid-cols-2 gap-4">
             {/* City */}
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">City</label>
-              <input
-                type="text"
-                required
-                placeholder="e.g. Seattle, WA"
+              <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Metro Area</label>
+              <select
                 value={city}
                 onChange={(e) => setCity(e.target.value)}
-                className="w-full bg-dark-bg border border-dark-border rounded-xl py-3 px-4 text-white text-sm focus:outline-none focus:border-primary"
-              />
+                className="w-full bg-slate-950 border border-dark-border text-white rounded-xl py-3 px-4 text-sm focus:outline-none focus:border-primary"
+              >
+                {citiesList.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
             </div>
 
             {/* Asking Price */}
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Asking Price ($)</label>
+              <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Asking Price (₹)</label>
               <input
                 type="number"
                 required
-                placeholder="e.g. 850"
+                placeholder="e.g. 150000"
                 value={askingPrice}
                 onChange={(e) => setAskingPrice(e.target.value)}
-                className="w-full bg-dark-bg border border-dark-border rounded-xl py-3 px-4 text-white text-sm focus:outline-none focus:border-primary"
+                className="w-full bg-slate-950 border border-dark-border rounded-xl py-3 px-4 text-white text-sm focus:outline-none focus:border-primary"
               />
             </div>
           </div>
@@ -254,11 +256,11 @@ const CreateListing = () => {
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Description</label>
             <textarea
-              placeholder="Provide details about specs, minor scratches, upgrades, and maintenance history..."
+              placeholder="Provide upgrades, standard km/l mileage, service logs history details..."
               rows={4}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full bg-dark-bg border border-dark-border rounded-xl py-3 px-4 text-white text-sm focus:outline-none focus:border-primary"
+              className="w-full bg-slate-950 border border-dark-border rounded-xl py-3 px-4 text-white text-sm focus:outline-none focus:border-primary"
             />
           </div>
 
@@ -266,7 +268,7 @@ const CreateListing = () => {
           <div className="space-y-2">
             <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Upload Photo</label>
             <div className="flex items-center gap-4">
-              <label className="flex items-center space-x-2 bg-dark-bg hover:bg-dark-bg/80 border border-dark-border hover:border-gray-500 rounded-xl py-3 px-5 text-sm font-semibold cursor-pointer text-gray-300 transition-colors">
+              <label className="flex items-center space-x-2 bg-slate-950 hover:bg-slate-950/80 border border-dark-border hover:border-gray-500 rounded-xl py-3 px-5 text-sm font-semibold cursor-pointer text-gray-300 transition-colors">
                 <Upload className="w-4 h-4 text-primary" />
                 <span>Choose Image</span>
                 <input
@@ -287,9 +289,9 @@ const CreateListing = () => {
           </div>
         </div>
 
-        {/* Right Col: AI Valuation Feedback */}
+        {/* Live AI Valuation */}
         <div className="md:col-span-4 space-y-6">
-          <div className="bg-dark-surface border border-dark-border rounded-2xl p-6 shadow-md space-y-4">
+          <div className="bg-slate-900 border border-dark-border rounded-2xl p-6 shadow-md space-y-4">
             <h3 className="font-bold text-white flex items-center space-x-1.5 border-b border-dark-border/40 pb-3.5">
               <Sparkles className="w-4.5 h-4.5 text-primary" />
               <span>Live AI Valuation</span>
@@ -297,16 +299,16 @@ const CreateListing = () => {
 
             {liveEstimate > 0 ? (
               <div className="space-y-4">
-                <div className="bg-dark-bg/60 border border-dark-border p-4 rounded-xl text-center">
+                <div className="bg-slate-950 border border-dark-border p-4 rounded-xl text-center">
                   <p className="text-[10px] text-gray-500 uppercase font-bold">Estimated Fair Price</p>
-                  <p className="text-2xl font-black text-emerald-400">${liveEstimate.toLocaleString()}</p>
+                  <p className="text-xl font-black text-emerald-400">₹{liveEstimate.toLocaleString('en-IN')}</p>
                 </div>
 
                 {askingPrice && (
                   <div className="text-xs space-y-2">
                     <div className="flex justify-between">
                       <span className="text-gray-400 font-medium">Asking Price:</span>
-                      <span className="text-white font-bold">${parseFloat(askingPrice).toLocaleString()}</span>
+                      <span className="text-white font-bold">₹{parseFloat(askingPrice).toLocaleString('en-IN')}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-400 font-medium">Difference:</span>
@@ -317,17 +319,17 @@ const CreateListing = () => {
                     
                     <p className="text-gray-400 leading-relaxed text-[11px] pt-2 border-t border-dark-border/40">
                       {askingPrice > liveEstimate * 1.15 
-                        ? "Notice: Your asking price is overpriced. It sits > 15% above target market rates."
+                        ? "Notice: Asking price sits > 15% above predicted valuation. Consider lowering to drive demand."
                         : askingPrice < liveEstimate * 0.85 
-                        ? "Notice: This listing represents an underpriced bargain. High buyer interest is expected."
-                        : "Notice: Your listing price is fair. It sit within typical valuation ranges."}
+                        ? "Notice: This represents an underpriced offer and is expected to close quickly."
+                        : "Notice: Asking price sits within competitive fair limits."}
                     </p>
                   </div>
                 )}
               </div>
             ) : (
               <p className="text-xs text-gray-400 leading-relaxed py-4 text-center">
-                Input brand, manufacturing year, and mileage to generate a real-time price estimation.
+                Input brand, manufacturing year, and distance run to generate a live Rupee valuation.
               </p>
             )}
 
@@ -337,7 +339,7 @@ const CreateListing = () => {
               className="w-full bg-primary hover:bg-primary-hover disabled:bg-gray-600 text-white font-bold py-3.5 rounded-xl text-sm transition-all shadow-md shadow-orange-500/10 flex items-center justify-center space-x-1.5"
             >
               {submitLoading && <Loader2 className="w-4 h-4 animate-spin" />}
-              <span>{submitLoading ? 'Posting Listing...' : 'Publish Listing'}</span>
+              <span>{submitLoading ? 'Publishing...' : 'Publish Listing'}</span>
             </button>
           </div>
         </div>

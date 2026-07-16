@@ -5,33 +5,39 @@ from drf_spectacular.utils import extend_schema
 from recommendations.serializers import RecommendationQuerySerializer, CompareQuerySerializer
 from listings.models import BikeListing
 from listings.serializers import BikeListingSerializer
-from ml.recommender import recommend_bikes
+from ml.recommender import recommend_bikes_indian
 
 class RecommendationView(APIView):
-    """API endpoint to get personalized bike recommendations based on budget and riding profile."""
+    """API endpoint to get personalized bike recommendations using the Indian matching algorithm."""
     permission_classes = [permissions.AllowAny]
 
     @extend_schema(
         summary="Get Personalized Recommendations",
-        description="Ranks existing bike listings based on how well they match budget, usage, and mileage preferences.",
+        description="Ranks bike listings and static catalog items on 10 parameters (budget, usage, power, mileage, priority).",
         request=RecommendationQuerySerializer,
-        responses={200: BikeListingSerializer(many=True)}
+        responses={200: dict}
     )
     def post(self, request):
-        """Processes user search criteria, queries active catalog listings, and returns ranked matches."""
+        """Validates the 10 wizard criteria and computes matching profiles."""
         serializer = RecommendationQuerySerializer(data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             
-        budget = serializer.validated_data['budget']
+        # Extract validated inputs
+        budget_min = serializer.validated_data['budget_min']
+        budget_max = serializer.validated_data['budget_max']
         usage = serializer.validated_data['usage']
-        preferred_mileage = serializer.validated_data['preferred_mileage']
+        mileage_importance = serializer.validated_data['mileage_importance']
+        preferred_bike_type = serializer.validated_data['preferred_bike_type']
+        brand_preference = serializer.validated_data.get('brand_preference', '')
+        engine_power = serializer.validated_data['engine_power']
+        riding_priority = serializer.validated_data['riding_priority']
+        maintenance_budget = serializer.validated_data.get('maintenance_budget', None)
+        resale_importance = serializer.validated_data['resale_importance']
+        riding_area = serializer.validated_data['riding_area']
         
-        # Retrieve all listings currently active in the database (excluding deleted and draft)
+        # Query active marketplace listings to include in recommendations
         active_listings = BikeListing.objects.all()
-        
-        # Serialize candidate listings to flat python dicts for processing in the ML module
-        # Using a custom list generator to avoid serializing seller info which isn't needed by the recommender
         candidates = []
         for bike in active_listings:
             candidates.append({
@@ -48,11 +54,19 @@ class RecommendationView(APIView):
                 'created_at': bike.created_at.strftime('%Y-%m-%d') if bike.created_at else None
             })
             
-        # Run similarity ranking logic in the isolated recommender module
-        ranked_results = recommend_bikes(
-            budget=budget,
+        # Execute matching logic
+        ranked_results = recommend_bikes_indian(
+            budget_min=budget_min,
+            budget_max=budget_max,
             usage=usage,
-            preferred_mileage=preferred_mileage,
+            mileage_importance=mileage_importance,
+            preferred_bike_type=preferred_bike_type,
+            brand_preference=brand_preference,
+            engine_power=engine_power,
+            riding_priority=riding_priority,
+            maintenance_budget=maintenance_budget,
+            resale_importance=resale_importance,
+            riding_area=riding_area,
             candidates=candidates
         )
         
@@ -69,18 +83,58 @@ class CompareView(APIView):
         responses={200: BikeListingSerializer(many=True)}
     )
     def post(self, request):
-        """Validates candidate IDs and returns serialized details of the matching listings."""
+        """Validates candidate IDs and returns details of the matching listings."""
         serializer = CompareQuerySerializer(data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             
         listing_ids = serializer.validated_data['listing_ids']
         
-        # Fetch the selected listings, excluding any that are soft-deleted
-        listings = BikeListing.objects.filter(id__in=listing_ids)
+        # Check if the requested IDs are positive (listings in database) or negative (catalog mocks)
+        listings = []
+        db_ids = [idx for idx in listing_ids if idx > 0]
+        catalog_ids = [idx for idx in listing_ids if idx < 0]
         
-        # Order the results to match the request list order
-        ordered_listings = sorted(listings, key=lambda x: listing_ids.index(x.id))
-        
-        resp_serializer = BikeListingSerializer(ordered_listings, many=True)
-        return Response(resp_serializer.data, status=status.HTTP_200_OK)
+        # 1. Fetch from database if applicable
+        if db_ids:
+            db_listings = BikeListing.objects.filter(id__in=db_ids)
+            for item in db_listings:
+                listings.append({
+                    'id': item.id,
+                    'brand': item.brand,
+                    'model': item.model,
+                    'type': 'sports', # fallback
+                    'engine_cc': 150,
+                    'asking_price': float(item.asking_price),
+                    'fuel_economy': 40,
+                    'condition': item.condition,
+                    'year': item.year,
+                    'mileage': item.mileage,
+                    'city': item.city,
+                    'price_status': item.price_status,
+                    'key_features': 'Marketplace listed item.'
+                })
+                
+        # 2. Fetch from static catalog
+        from ml.recommender import BIKE_CATALOG
+        for item in BIKE_CATALOG:
+            if item['id'] in catalog_ids:
+                listings.append({
+                    'id': item['id'],
+                    'brand': item['brand'],
+                    'model': item['model'],
+                    'type': item['type'],
+                    'engine_cc': item['engine_cc'],
+                    'asking_price': item['asking_price'],
+                    'fuel_economy': item['fuel_economy'],
+                    'condition': 'Excellent', # mock
+                    'year': 2024,
+                    'mileage': 5000,
+                    'city': 'Delhi',
+                    'price_status': 'Fair',
+                    'key_features': item['key_features']
+                })
+                
+        # Maintain request sorting order
+        ordered_listings = sorted(listings, key=lambda x: listing_ids.index(x['id']))
+        return Response(ordered_listings, status=status.HTTP_200_OK)

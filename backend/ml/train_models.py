@@ -6,16 +6,19 @@ from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier, Isol
 from sklearn.preprocessing import StandardScaler
 
 def generate_synthetic_data():
-    """Generates synthetic CSV files for training listings and ride classifications."""
+    """Generates synthetic CSV files for training listings and ride classifications in Indian metrics."""
     data_dir = os.path.join(os.path.dirname(__file__), '..', 'data')
     os.makedirs(data_dir, exist_ok=True)
     
-    # 1. Generate Listing Price data
-    print("Generating synthetic price prediction data...")
-    n_samples = 500
+    # 1. Generate Listing Price data in Indian Rupees (₹)
+    print("Generating synthetic price prediction data (INR)...")
+    n_samples = 600
     np.random.seed(42)
     
-    brands = ['trek', 'specialized', 'giant', 'cannondale', 'santa cruz', 'other']
+    brands = [
+        'royal enfield', 'ktm', 'yamaha', 'bajaj', 'hero', 
+        'honda', 'suzuki', 'kawasaki', 'triumph', 'harley-davidson', 'other'
+    ]
     brand_encoder = {b: i for i, b in enumerate(brands)}
     
     data_listings = []
@@ -23,21 +26,23 @@ def generate_synthetic_data():
         brand = np.random.choice(brands)
         brand_val = brand_encoder[brand]
         age = np.random.randint(0, 15)
-        mileage = float(np.random.exponential(scale=2000.0) + age * 150.0)
+        mileage = float(np.random.exponential(scale=15000.0) + age * 2500.0) # km run
         cond_score = np.random.randint(1, 5) # 1=Poor, 4=Excellent
         
-        # Calculate a reasonable base price
+        # Calculate a reasonable base price in ₹
         brand_base = {
-            'trek': 1200.0, 'specialized': 1400.0, 'giant': 1000.0,
-            'cannondale': 1250.0, 'santa cruz': 2200.0, 'other': 800.0
+            'royal enfield': 220000.0, 'ktm': 310000.0, 'yamaha': 190000.0,
+            'bajaj': 150000.0, 'hero': 80000.0, 'honda': 180000.0,
+            'suzuki': 800000.0, 'kawasaki': 1200000.0, 'triumph': 950000.0,
+            'harley-davidson': 105000.0, 'other': 100000.0
         }[brand]
         
         # Depreciate based on age and mileage
-        depreciation = (age * 90.0) + (mileage * 0.08)
+        depreciation = (age * 15000.0) + (mileage * 1.5)
         cond_multiplier = cond_score / 3.0
         
         price = (brand_base - depreciation) * cond_multiplier
-        price = max(100.0, round(price + np.random.normal(0, 50.0), 2))
+        price = max(15000.0, round(price + np.random.normal(0, 8000.0), 2))
         
         data_listings.append({
             'brand': brand,
@@ -53,27 +58,27 @@ def generate_synthetic_data():
     df_listings.to_csv(listings_csv_path, index=False)
     print(f"Saved synthetic listings to: {listings_csv_path}")
     
-    # 2. Generate Riding Style data
-    print("Generating synthetic riding style classifier data...")
+    # 2. Generate Riding Style data in km/h
+    print("Generating synthetic riding style classifier data (km/h)...")
     n_rides = 300
     data_rides = []
     
     for _ in range(n_rides):
         style = np.random.choice(['Calm', 'Moderate', 'Aggressive'], p=[0.4, 0.4, 0.2])
         if style == 'Calm':
-            avg_speed = np.random.uniform(5.0, 11.0)
-            max_speed = avg_speed + np.random.uniform(2.0, 5.0)
+            avg_speed = np.random.uniform(15.0, 30.0) # km/h
+            max_speed = avg_speed + np.random.uniform(5.0, 15.0)
             accel_var = np.random.uniform(0.1, 0.5)
             harsh_braking = np.random.randint(0, 2)
         elif style == 'Moderate':
-            avg_speed = np.random.uniform(10.0, 16.0)
-            max_speed = avg_speed + np.random.uniform(4.0, 8.0)
-            accel_var = np.random.uniform(0.4, 1.1)
+            avg_speed = np.random.uniform(30.0, 50.0)
+            max_speed = avg_speed + np.random.uniform(15.0, 25.0)
+            accel_var = np.random.uniform(0.4, 1.2)
             harsh_braking = np.random.randint(1, 4)
         else: # Aggressive
-            avg_speed = np.random.uniform(14.0, 22.0)
-            max_speed = avg_speed + np.random.uniform(7.0, 15.0)
-            accel_var = np.random.uniform(1.0, 2.8)
+            avg_speed = np.random.uniform(45.0, 75.0)
+            max_speed = avg_speed + np.random.uniform(25.0, 45.0)
+            accel_var = np.random.uniform(1.2, 3.5)
             harsh_braking = np.random.randint(3, 8)
             
         data_rides.append({
@@ -106,7 +111,10 @@ def train_and_save_models():
         model = RandomForestRegressor(n_estimators=100, random_state=42)
         model.fit(X, y)
         
-        brands = ['trek', 'specialized', 'giant', 'cannondale', 'santa cruz', 'other']
+        brands = [
+            'royal enfield', 'ktm', 'yamaha', 'bajaj', 'hero', 
+            'honda', 'suzuki', 'kawasaki', 'triumph', 'harley-davidson', 'other'
+        ]
         brand_encoder = {b: i for i, b in enumerate(brands)}
         
         joblib.dump({
@@ -116,7 +124,6 @@ def train_and_save_models():
         print("Price Predictor trained and saved.")
         
     # 2. Train Fraud Detector (Isolation Forest)
-    # Features: price_ratio, trust_score, listings_count, days_active
     print("Training Fraud Anomaly Detector (Isolation Forest)...")
     np.random.seed(42)
     n_fraud_train = 300
@@ -170,4 +177,4 @@ def train_and_save_models():
 if __name__ == '__main__':
     generate_synthetic_data()
     train_and_save_models()
-    print("All ML models trained and saved successfully.")
+    print("All ML models trained and saved successfully with Indian metrics.")

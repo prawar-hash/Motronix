@@ -1,13 +1,9 @@
 import apiClient from './apiClient';
 
 export const recommendationsApi = {
-  // Query personalized recommendations
-  getRecommendations: async (budget, usage, preferredMileage) => {
-    const response = await apiClient.post('/recommendations/', {
-      budget: parseFloat(budget),
-      usage,
-      preferred_mileage: parseFloat(preferredMileage),
-    });
+  // Query personalized recommendations using the 10-parameter payload
+  getRecommendations: async (payload) => {
+    const response = await apiClient.post('/recommendations/', payload);
     return response.data;
   },
 
