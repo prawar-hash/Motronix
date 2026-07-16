@@ -8,7 +8,8 @@ MAINTENANCE_INTERVALS = {
     'Brake Pads Replacement': 2500,
     'Tire Replacement': 5000,
     'Chain & Cassette Replacement': 6000,
-    'General Tuning & Safety Check': 3000
+    'General Tuning & Safety Check': 3000,
+    'Scheduled Service': 4000
 }
 
 # Standard baseline cost estimates for each service type in Indian Rupees (₹)
@@ -17,24 +18,45 @@ SERVICE_COSTS = {
     'Brake Pads Replacement': 850.0,
     'Tire Replacement': 3500.0,
     'Chain & Cassette Replacement': 5200.0,
-    'General Tuning & Safety Check': 1200.0
+    'General Tuning & Safety Check': 1200.0,
+    'Scheduled Service': 2500.0
 }
 
-def predict_next_maintenance(current_mileage: float, service_history: list) -> dict:
-    """Predicts next due service distance (km), date, estimated cost (₹), and likely failures based on history."""
+def predict_next_maintenance(current_mileage: float, service_history: list, brand: str = 'Other', model: str = 'Other') -> dict:
+    """Predicts next due service distance, date, cost (₹), and likely failures based on history and bike brand/model."""
     current_date = datetime.now()
+    brand_clean = str(brand).strip().lower()
+    model_clean = str(model).strip().lower()
     
     # 1. Handle empty history case
     if not service_history:
         next_mileage = current_mileage + 1500.0 # 1500 km baseline
         next_date = current_date + timedelta(days=90) # Default to 3 months
         
+        # Calculate model specific defaults
+        est_cost = 1200.0
+        failures = ['General Tuning & Safety Check']
+        
+        if 'royal enfield' in brand_clean:
+            failures.append('Tappet & Valve Clearance Check')
+            est_cost = 1800.0
+        elif 'ktm' in brand_clean:
+            failures.append('Coolant Level Check')
+            est_cost = 2200.0
+        elif 'hero' in brand_clean:
+            failures.append('Drum Brake Adjustment')
+            est_cost = 450.0
+        elif brand_clean in ['kawasaki', 'suzuki', 'triumph', 'harley-davidson'] or 'zx' in model_clean or 'hayabusa' in model_clean:
+            failures.append('Fork Seal Inspection')
+            failures.append('Synthetic Engine Flush')
+            est_cost = 6500.0
+            
         return {
             'next_service_mileage': round(next_mileage, 1),
             'next_service_date': next_date.strftime('%Y-%m-%d'),
-            'estimated_cost': 1200.0, # Default tune-up cost in ₹
-            'likely_failures': ['General Tuning & Safety Check'],
-            'explanation': "Prediction based on general manufacture check-up intervals (1,500 km or 3 months)."
+            'estimated_cost': est_cost,
+            'likely_failures': failures,
+            'explanation': f"First scan for {brand} {model}. Estimates loaded from brand baseline defaults."
         }
         
     # 2. Convert service history to pandas DataFrame for analysis
@@ -53,7 +75,7 @@ def predict_next_maintenance(current_mileage: float, service_history: list) -> d
         if days_diff > 0 and mileage_diff > 0:
             usage_rate = max(2.0, mileage_diff / days_diff)
             
-    # Also adjust usage rate if current mileage is much higher than last service
+    # Adjust usage rate based on current mileage vs last service
     last_service_mileage = df['mileage'].max()
     last_service_date = df['service_date'].max()
     days_since_last = (current_date - last_service_date).days
@@ -72,17 +94,36 @@ def predict_next_maintenance(current_mileage: float, service_history: list) -> d
         if type_history.empty:
             if current_mileage >= interval:
                 critical_failures.append(service_type)
-                estimated_cost += SERVICE_COSTS[service_type]
+                estimated_cost += SERVICE_COSTS.get(service_type, 1200.0)
         else:
             last_type_mileage = type_history['mileage'].max()
             if (current_mileage - last_type_mileage) >= interval:
                 critical_failures.append(service_type)
-                estimated_cost += SERVICE_COSTS[service_type]
+                estimated_cost += SERVICE_COSTS.get(service_type, 1200.0)
                 
-    # If no specific parts exceed threshold, recommend general tuning
+    # Model-specific custom alerts
+    if 'royal enfield' in brand_clean:
+        if current_mileage >= 3000:
+            critical_failures.append('Tappet & Valve Clearance Check')
+            estimated_cost += 600.0
+        critical_failures.append('Engine Oil Leak Check')
+    elif 'ktm' in brand_clean:
+        critical_failures.append('Coolant Level Check')
+        if current_mileage >= 5000:
+            critical_failures.append('Fuel Injector Flush')
+            estimated_cost += 1000.0
+    elif 'hero' in brand_clean:
+        critical_failures.append('Drum Brake Line Tensioning')
+        estimated_cost += 150.0
+    elif brand_clean in ['kawasaki', 'suzuki', 'triumph', 'harley-davidson'] or 'zx' in model_clean or 'hayabusa' in model_clean:
+        critical_failures.append('Fork Seal & USD Inspection')
+        critical_failures.append('High-CC Radiator Flush')
+        estimated_cost += 3500.0 # premium multiplier
+        
+    # If no specific parts exceed threshold, recommend general checkup
     if not critical_failures:
-        critical_failures.append('General Tuning & Safety Check')
-        estimated_cost = SERVICE_COSTS['General Tuning & Safety Check']
+        critical_failures.append('Scheduled Service')
+        estimated_cost = SERVICE_COSTS['Scheduled Service']
         next_interval = 1500.0
     else:
         next_interval = 300.0
@@ -101,6 +142,6 @@ def predict_next_maintenance(current_mileage: float, service_history: list) -> d
         'next_service_mileage': round(next_mileage, 1),
         'next_service_date': next_date.strftime('%Y-%m-%d'),
         'estimated_cost': round(estimated_cost, 2),
-        'likely_failures': critical_failures,
-        'explanation': f"Extrapolated from {len(df)} logged service logs. Projected usage: {round(usage_rate, 2)} km/day."
+        'likely_failures': list(set(critical_failures)), # unique
+        'explanation': f"Diagnostics compiled for {brand} {model}. Historical usage logs calculate to {round(usage_rate, 2)} km/day."
     }

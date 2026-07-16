@@ -11,6 +11,7 @@ class ServiceRecord(SoftDeleteModel):
         ('Tire Replacement', 'Tire Replacement'),
         ('Chain & Cassette Replacement', 'Chain & Cassette Replacement'),
         ('General Tuning & Safety Check', 'General Tuning & Safety Check'),
+        ('Scheduled Service', 'Scheduled Service'),
     ]
 
     bike_owner = models.ForeignKey(
@@ -29,6 +30,8 @@ class ServiceRecord(SoftDeleteModel):
     service_type = models.CharField(max_length=100, choices=SERVICE_TYPE_CHOICES)
     mileage = models.FloatField()
     cost = models.DecimalField(max_digits=8, decimal_places=2)
+    brand = models.CharField(max_length=100, default='Other')
+    model = models.CharField(max_length=100, default='Other')
 
     def __str__(self):
-        return f"{self.service_type} - {self.service_date} (${self.cost})"
+        return f"{self.brand} {self.model} - {self.service_type} ({self.service_date})"

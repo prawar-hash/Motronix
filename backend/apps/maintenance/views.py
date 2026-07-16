@@ -32,8 +32,10 @@ class MaintenancePredictionView(APIView):
         responses={200: dict}
     )
     def get(self, request):
-        """Calculates prediction using current_mileage parameter and logged service records."""
+        """Calculates prediction using current_mileage, brand, and model parameters."""
         current_mileage_str = request.query_params.get('current_mileage', None)
+        brand = request.query_params.get('brand', 'Other')
+        model = request.query_params.get('model', 'Other')
         
         if not current_mileage_str:
             return Response(
@@ -61,13 +63,17 @@ class MaintenancePredictionView(APIView):
                 'service_date': r.service_date.strftime('%Y-%m-%d'),
                 'service_type': r.service_type,
                 'mileage': float(r.mileage),
-                'cost': float(r.cost)
+                'cost': float(r.cost),
+                'brand': r.brand,
+                'model': r.model
             })
 
-        # Run prediction engine
+        # Run prediction engine with model and brand criteria
         prediction_result = predict_next_maintenance(
             current_mileage=current_mileage,
-            service_history=service_history
+            service_history=service_history,
+            brand=brand,
+            model=model
         )
 
         return Response(prediction_result, status=status.HTTP_200_OK)

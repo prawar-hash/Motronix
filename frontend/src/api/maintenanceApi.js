@@ -13,11 +13,27 @@ export const maintenanceApi = {
     return response.data;
   },
 
-  // Retrieves the predicted schedule and part failures based on current mileage
-  getPrediction: async (currentMileage) => {
+  // Retrieves the predicted schedule based on mileage, brand, and model
+  getPrediction: async (currentMileage, brand, model) => {
     const response = await apiClient.get('/maintenance/predict/', {
-      params: { current_mileage: parseFloat(currentMileage) },
+      params: { 
+        current_mileage: parseFloat(currentMileage),
+        brand: brand || 'Other',
+        model: model || 'Other'
+      },
     });
+    return response.data;
+  },
+
+  // Updates a logged service record
+  updateRecord: async (id, data) => {
+    const response = await apiClient.put(`/maintenance/${id}/`, data);
+    return response.data;
+  },
+
+  // Deletes a logged service record
+  deleteRecord: async (id) => {
+    const response = await apiClient.delete(`/maintenance/${id}/`);
     return response.data;
   },
 };

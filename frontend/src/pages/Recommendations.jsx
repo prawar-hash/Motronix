@@ -1,16 +1,79 @@
 import React, { useState } from 'react';
 import { recommendationsApi } from '../api/recommendationsApi';
-import { Sparkles, Loader2, AlertCircle, ArrowLeft, ArrowRight, CheckCircle2, RefreshCw, Layers, CheckSquare, Square, X } from 'lucide-react';
+import { Sparkles, Loader2, AlertCircle, ArrowLeft, ArrowRight, CheckCircle2, RefreshCw, Layers, CheckSquare, Square, X, Sliders } from 'lucide-react';
 import PriceBadge from '../components/PriceBadge';
+import BikeLoader from '../components/BikeLoader';
+
+// Mappers to fetch official/original-looking photos of the exact suggested Indian and imported bike models
+const getBikeImage = (brand, model) => {
+  const brand_lower = String(brand).toLowerCase();
+  const model_lower = String(model).toLowerCase();
+  
+  // 1. Royal Enfield models
+  if (model_lower.includes('himalayan')) {
+    return 'https://images.unsplash.com/photo-1616422285623-13ff0162193c?auto=format&fit=crop&w=800&q=80'; // Himalayan adventure model
+  }
+  if (model_lower.includes('classic') || model_lower.includes('bullet') || brand_lower.includes('royal enfield')) {
+    return 'https://images.unsplash.com/photo-1610444318721-c4d62bcf81cb?auto=format&fit=crop&w=800&q=80'; // RE Classic / Bullet thumper style
+  }
+  
+  // 2. KTM models
+  if (model_lower.includes('duke') || brand_lower.includes('ktm')) {
+    return 'https://images.unsplash.com/photo-1599819811279-d5ad9cccf838?auto=format&fit=crop&w=800&q=80'; // Orange KTM Duke 390/200
+  }
+  
+  // 3. Yamaha models
+  if (model_lower.includes('r15') || model_lower.includes('mt-15') || brand_lower.includes('yamaha')) {
+    return 'https://images.unsplash.com/photo-1614162692292-7ac56d7f7f1e?auto=format&fit=crop&w=800&q=80'; // Blue Yamaha R15 sportbike
+  }
+  
+  // 4. Hero models
+  if (model_lower.includes('splendor') || brand_lower.includes('hero')) {
+    return 'https://images.unsplash.com/photo-1622185135505-2d795003994a?auto=format&fit=crop&w=800&q=80'; // Standard Indian commuter (Splendor)
+  }
+  
+  // 5. Bajaj models
+  if (model_lower.includes('pulsar') || brand_lower.includes('bajaj')) {
+    return 'https://images.unsplash.com/photo-1615887023516-9b6bcd559e87?auto=format&fit=crop&w=800&q=80'; // Bajaj Pulsar sport street thumper
+  }
+  
+  // 6. Honda models
+  if (model_lower.includes('h\'ness') || model_lower.includes('cb350') || brand_lower.includes('honda')) {
+    return 'https://images.unsplash.com/photo-1609630875171-b1321377ee65?auto=format&fit=crop&w=800&q=80'; // Honda H'ness cruiser style
+  }
+  
+  // 7. Suzuki models
+  if (model_lower.includes('hayabusa') || brand_lower.includes('suzuki')) {
+    return 'https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=800&q=80'; // Suzuki GSX-R / Hayabusa style
+  }
+  
+  // 8. Kawasaki models
+  if (model_lower.includes('ninja') || model_lower.includes('zx') || brand_lower.includes('kawasaki')) {
+    return 'https://images.unsplash.com/photo-1533230393054-041a506a6346?auto=format&fit=crop&w=800&q=80'; // Lime green Kawasaki Ninja ZX superbike
+  }
+  
+  // 9. Triumph models
+  if (model_lower.includes('tiger') || brand_lower.includes('triumph')) {
+    return 'https://images.unsplash.com/photo-1508898578281-774ac4893c0c?auto=format&fit=crop&w=800&q=80'; // Triumph Tiger adventure tourer
+  }
+  
+  // 10. Harley Davidson models
+  if (model_lower.includes('iron') || brand_lower.includes('harley')) {
+    return 'https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=800&q=80'; // Harley-Davidson Iron 883 cruiser
+  }
+  
+  // Generic fallback motorcycle image
+  return 'https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=800&q=80';
+};
 
 const Recommendations = () => {
   // Wizard steps state
   const [step, setStep] = useState(1);
   const totalSteps = 4;
 
-  // 10 parameter states
-  const [budgetMin, setBudgetMin] = useState('50000');
-  const [budgetMax, setBudgetMax] = useState('300000');
+  // 10 parameter states (sliding limits)
+  const [budgetMin, setBudgetMin] = useState(50000);
+  const [budgetMax, setBudgetMax] = useState(300000);
   const [usage, setUsage] = useState('daily commute');
   const [mileageImportance, setMileageImportance] = useState('balanced');
   const [preferredBikeType, setPreferredBikeType] = useState('commuter');
@@ -21,6 +84,9 @@ const Recommendations = () => {
   const [resaleImportance, setResaleImportance] = useState('yes');
   const [ridingArea, setRidingArea] = useState('both');
 
+  // Sorting state
+  const [sortBy, setSortBy] = useState('match'); // 'match', 'price_asc', 'price_desc'
+
   // App results & comparison states
   const [results, setResults] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
@@ -29,7 +95,7 @@ const Recommendations = () => {
   const [compareLoading, setCompareLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const brandsList = ['Royal Enfield', 'KTM', 'Yamaha', 'Bajaj', 'Hero', 'Honda', 'Suzuki', 'Kawasaki', 'Triumph', 'Harley-Davidson'];
+  const brandsList = ['Royal Enfield', 'KTM', 'Yamaha', 'Bajaj', 'Hero', 'Honda', 'Suzuki', 'Kawasaki', 'Triumph'];
 
   const handleNext = () => {
     if (step < totalSteps) setStep(step + 1);
@@ -107,6 +173,20 @@ const Recommendations = () => {
     setSelectedIds([]);
     setComparisonBikes([]);
     setError(null);
+    setSortBy('match');
+  };
+
+  // Sort logic for display
+  const getSortedResults = () => {
+    const sorted = [...results];
+    if (sortBy === 'price_asc') {
+      sorted.sort((a, b) => parseFloat(a.asking_price) - parseFloat(b.asking_price));
+    } else if (sortBy === 'price_desc') {
+      sorted.sort((a, b) => parseFloat(b.asking_price) - parseFloat(a.asking_price));
+    } else {
+      sorted.sort((a, b) => b.match_score - a.match_score);
+    }
+    return sorted;
   };
 
   return (
@@ -114,7 +194,7 @@ const Recommendations = () => {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-black text-white uppercase tracking-tight">Bike Matchmaker</h1>
+          <h1 className="text-3xl font-black text-white uppercase tracking-tight">Motronix Matchmaker</h1>
           <p className="text-gray-400 text-sm">Find your optimal bike match using our 10-parameter similarity calculator.</p>
         </div>
         {step > 1 && (
@@ -157,28 +237,59 @@ const Recommendations = () => {
       {step <= totalSteps && (
         <div className="bg-slate-900 border border-dark-border rounded-2xl p-8 shadow-xl max-w-2xl mx-auto space-y-6">
           
-          {/* Step 1: Budget Bounds */}
+          {/* Step 1: Budget Range Sliders */}
           {step === 1 && (
-            <div className="space-y-6">
-              <h3 className="text-xl font-bold text-white border-b border-dark-border/40 pb-3">Step 1: Set Your Budget Range</h3>
-              <div className="grid sm:grid-cols-2 gap-6">
+            <div className="space-y-8 animate-fade-in">
+              <h3 className="text-xl font-bold text-white border-b border-dark-border/40 pb-3 flex items-center space-x-2">
+                <Sliders className="w-5 h-5 text-primary" />
+                <span>Step 1: Slide Budget Range</span>
+              </h3>
+              
+              <div className="space-y-6">
+                {/* Min Budget Range */}
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Minimum Budget (₹)</label>
+                  <div className="flex justify-between text-xs font-bold uppercase tracking-wider">
+                    <span className="text-gray-400">Minimum Budget</span>
+                    <span className="text-primary text-sm font-black">₹{parseFloat(budgetMin).toLocaleString('en-IN')}</span>
+                  </div>
                   <input
-                    type="number"
+                    type="range"
+                    min="10000"
+                    max="500000"
+                    step="5000"
                     value={budgetMin}
-                    onChange={(e) => setBudgetMin(e.target.value)}
-                    className="w-full bg-slate-950 border border-dark-border rounded-xl py-3.5 px-4 text-white text-sm focus:outline-none focus:border-primary font-bold"
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value);
+                      setBudgetMin(val);
+                      if (val > budgetMax) setBudgetMax(val + 10000);
+                    }}
+                    className="w-full h-2 bg-slate-950 rounded-lg appearance-none cursor-pointer accent-primary border border-dark-border"
                   />
+                  <div className="flex justify-between text-[10px] text-gray-500 font-bold">
+                    <span>₹10,000</span>
+                    <span>₹5.0 Lakhs</span>
+                  </div>
                 </div>
+
+                {/* Max Budget Range */}
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Maximum Budget (₹)</label>
+                  <div className="flex justify-between text-xs font-bold uppercase tracking-wider">
+                    <span className="text-gray-400">Maximum Budget</span>
+                    <span className="text-primary text-sm font-black">₹{parseFloat(budgetMax).toLocaleString('en-IN')}</span>
+                  </div>
                   <input
-                    type="number"
+                    type="range"
+                    min={budgetMin}
+                    max="2500000"
+                    step="10000"
                     value={budgetMax}
-                    onChange={(e) => setBudgetMax(e.target.value)}
-                    className="w-full bg-slate-950 border border-dark-border rounded-xl py-3.5 px-4 text-white text-sm focus:outline-none focus:border-primary font-bold"
+                    onChange={(e) => setBudgetMax(parseInt(e.target.value))}
+                    className="w-full h-2 bg-slate-950 rounded-lg appearance-none cursor-pointer accent-primary border border-dark-border"
                   />
+                  <div className="flex justify-between text-[10px] text-gray-500 font-bold">
+                    <span>₹{parseFloat(budgetMin).toLocaleString('en-IN')}</span>
+                    <span>₹25.0 Lakhs</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -355,12 +466,9 @@ const Recommendations = () => {
         </div>
       )}
 
-      {/* Loading state */}
+      {/* Loading state using custom BikeLoader */}
       {loading && (
-        <div className="flex flex-col items-center justify-center py-20 space-y-4">
-          <Loader2 className="w-10 h-10 text-primary animate-spin" />
-          <p className="text-gray-400 text-sm">Processing similarity metrics over active databases...</p>
-        </div>
+        <BikeLoader message="Processing Similarity Metrics & Mapped Bike Images..." />
       )}
 
       {/* Error block */}
@@ -371,15 +479,30 @@ const Recommendations = () => {
         </div>
       )}
 
-      {/* Step 5: Recommendations results */}
+      {/* Step 5: Recommendations results with sorting filters */}
       {step === 5 && !loading && results.length > 0 && (
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
+        <div className="space-y-6 animate-fade-in">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <h2 className="text-xl font-bold text-white flex items-center space-x-2 uppercase tracking-tight">
               <CheckCircle2 className="w-5 h-5 text-emerald-400" />
               <span>Recommended Bikes for You</span>
             </h2>
-            <div className="flex space-x-3">
+            
+            {/* Sorting controls */}
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="flex items-center space-x-1.5 bg-slate-900 border border-dark-border px-3.5 py-2 rounded-xl text-xs font-bold text-gray-400">
+                <span>Sort by:</span>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="bg-transparent border-none text-white focus:outline-none cursor-pointer text-xs font-bold"
+                >
+                  <option className="bg-slate-950" value="match">Match Rating (%)</option>
+                  <option className="bg-slate-950" value="price_asc">Price: Low to High</option>
+                  <option className="bg-slate-950" value="price_desc">Price: High to Low</option>
+                </select>
+              </div>
+
               {selectedIds.length >= 2 && (
                 <button
                   onClick={handleCompareSubmit}
@@ -390,6 +513,7 @@ const Recommendations = () => {
                   <span>Compare Selected ({selectedIds.length})</span>
                 </button>
               )}
+
               <button
                 onClick={handleResetWizard}
                 className="bg-slate-900 border border-dark-border hover:border-gray-500 text-gray-300 font-bold py-2.5 px-5 rounded-xl text-xs uppercase tracking-wider transition-colors"
@@ -400,13 +524,15 @@ const Recommendations = () => {
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {results.map((bike) => {
+            {getSortedResults().map((bike) => {
               const isSelected = selectedIds.includes(bike.id);
+              const bikePhoto = getBikeImage(bike.brand, bike.model);
               return (
                 <div
                   key={bike.id}
                   className={`bg-slate-900 border rounded-xl overflow-hidden shadow-lg flex flex-col group h-full relative ${isSelected ? 'border-primary' : 'border-dark-border'}`}
                 >
+                  {/* Selector checkbox */}
                   <button
                     onClick={() => handleSelectCompare(bike.id)}
                     className="absolute top-3 left-3 z-10 bg-slate-950/90 hover:bg-slate-950 text-gray-300 p-2 rounded-lg border border-dark-border/80 transition-all flex items-center justify-center"
@@ -419,19 +545,29 @@ const Recommendations = () => {
                     )}
                   </button>
 
-                  <div className="relative aspect-[16/10] overflow-hidden bg-slate-950 flex items-center justify-center p-6 text-center border-b border-dark-border/40">
-                    <div className="space-y-1">
-                      <h4 className="text-xs font-bold text-gray-500 uppercase tracking-widest">Model Profile</h4>
-                      <p className="text-xl font-black text-white">{bike.brand}</p>
-                      <p className="text-sm font-semibold text-gray-400">{bike.model}</p>
-                    </div>
-                    {/* Match Score */}
+                  {/* Bike Image */}
+                  <div className="relative aspect-[16/10] overflow-hidden bg-slate-950 border-b border-dark-border/40">
+                    <img
+                      src={bikePhoto}
+                      alt={`${bike.brand} ${bike.model}`}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                    
+                    {/* Match Score overlay */}
                     <div className="absolute top-3 right-3 bg-primary text-white font-black text-xs px-2.5 py-1 rounded-full shadow-md">
                       {bike.match_score}% Match
                     </div>
                   </div>
 
+                  {/* Card Description */}
                   <div className="p-5 flex flex-col flex-grow space-y-4">
+                    <div>
+                      <h4 className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Model Profile</h4>
+                      <h3 className="text-lg font-black text-white group-hover:text-primary transition-colors">
+                        {bike.brand} <span className="font-normal text-gray-400 text-sm">{bike.model}</span>
+                      </h3>
+                    </div>
+
                     <div className="flex justify-between items-baseline border-b border-dark-border/30 pb-2">
                       <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Showroom Price</span>
                       <span className="text-lg font-black text-primary">₹{parseFloat(bike.asking_price).toLocaleString('en-IN')}</span>
@@ -448,7 +584,9 @@ const Recommendations = () => {
 
                     <div className="space-y-1">
                       <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wide">Key Features:</p>
-                      <p className="text-xs text-gray-300 leading-relaxed font-semibold">{bike.key_features}</p>
+                      <p className="text-xs text-gray-300 leading-relaxed font-semibold line-clamp-2" title={bike.key_features}>
+                        {bike.key_features}
+                      </p>
                     </div>
 
                     <div className="bg-slate-950/60 border border-dark-border/60 p-3 rounded-lg text-xs text-primary leading-relaxed mt-auto font-medium">

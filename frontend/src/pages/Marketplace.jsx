@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { listingsApi } from '../api/listingsApi';
 import BikeCard from '../components/BikeCard';
 import { Search, Filter, Loader2, Sparkles, AlertCircle, RefreshCw } from 'lucide-react';
+import BikeLoader from '../components/BikeLoader';
 
 const Marketplace = () => {
   const [listings, setListings] = useState([]);
@@ -151,10 +152,7 @@ const Marketplace = () => {
 
       {/* Listings Grid */}
       {loading ? (
-        <div className="flex flex-col items-center justify-center py-20 space-y-4">
-          <Loader2 className="w-10 h-10 text-primary animate-spin" />
-          <p className="text-gray-400 text-sm">Querying database...</p>
-        </div>
+        <BikeLoader message="Fetching Showroom Listings..." />
       ) : error ? (
         <div className="bg-rose-500/10 border border-rose-500/20 text-rose-400 p-8 rounded-2xl text-center space-y-4 max-w-lg mx-auto">
           <AlertCircle className="w-12 h-12 mx-auto" />

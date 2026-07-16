@@ -1,153 +1,244 @@
-import React, { useContext } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext';
-import { Bike, Wrench, Activity, Search, HelpCircle, ArrowRight, Gauge, Trophy } from 'lucide-react';
+import { Sparkles, ShieldCheck, DollarSign, Wrench, Shield, ArrowRight, Trophy, Star, ShieldAlert, Award, FileText } from 'lucide-react';
 
 const Home = () => {
-  const { isAuthenticated } = useContext(AuthContext);
-
-  const features = [
+  // AI Feature definitions with navigation endpoints
+  const aiFeatures = [
     {
-      title: 'Smart P2P Marketplace',
-      desc: 'Browse and post bike listings. Our ML regression engine predicts a fair valuation in Indian Rupees (₹) to flag overpriced listings.',
-      icon: Bike,
-      link: '/marketplace',
-      color: 'border-orange-500/20 hover:border-orange-500/80 text-orange-500 hover:shadow-orange-500/5',
-      badge: '₹ INR Pricing'
+      title: 'Price Prediction',
+      desc: 'Get immediate fair market valuation using our Random Forest regressor mapped in Rupee ranges.',
+      icon: DollarSign,
+      link: '/marketplace'
     },
     {
-      title: '10-Parameter Matchmaker',
-      desc: 'Answer a simple wizard about your budget, usage area, cc preference, and priorities, and let our Similarity Engine find the top 3-5 matches.',
-      icon: HelpCircle,
-      link: '/recommendations',
-      color: 'border-sky-500/20 hover:border-sky-500/80 text-sky-500 hover:shadow-sky-500/5',
-      badge: 'Similarity ML'
+      title: 'Fraud Detection',
+      desc: 'Verify title deeds and evaluate listings authenticity with AI trust scores.',
+      icon: ShieldCheck,
+      link: '/marketplace'
     },
     {
-      title: 'Garage Diagnostic Hub',
-      desc: 'Log service cards and project maintenance logs. The ML service predictor projects check-up due dates, costs, and wear warnings.',
+      title: 'Smart Recommendations',
+      desc: 'Input 10 distinct ride variables in our wizard simulator to match the ideal commuter or superbike.',
+      icon: Sparkles,
+      link: '/recommendations'
+    },
+    {
+      title: 'Maintenance Predictor',
+      desc: 'Anticipate parts failure schedules and view model-specific garage checklists.',
       icon: Wrench,
-      link: '/maintenance',
-      color: 'border-emerald-500/20 hover:border-emerald-500/80 text-emerald-400 hover:shadow-emerald-500/5',
-      badge: 'Garage Theme'
+      link: '/maintenance'
+    }
+  ];
+
+  // Benefits list
+  const benefits = [
+    {
+      title: 'Smart AI Insights',
+      desc: 'Make analytics-backed decisions on pricing and mechanical components.',
+      icon: Trophy
     },
     {
-      title: 'Riding Style Classifier',
-      desc: 'Upload sensor ride logs (CSV). Our Random Forest classifier analyzes speed trends in km/h and provides actionable efficiency tips.',
-      icon: Activity,
-      link: '/riding-style',
-      color: 'border-purple-500/20 hover:border-purple-500/80 text-purple-400 hover:shadow-purple-500/5',
-      badge: 'RF Classifier'
+      title: 'Safe Marketplace',
+      desc: 'All listings receive security scores, and cross-patient uploads are server-side blocked.',
+      icon: Shield
     },
+    {
+      title: 'Personalized Matches',
+      desc: 'Get recommendations aligned with Indian roads, prices, and parts availability.',
+      icon: Star
+    }
   ];
 
   return (
-    <div className="space-y-16 pb-16 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden py-24 px-4 text-center border-b border-dark-border/40">
-        {/* Carbon grid mesh overlay */}
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(240,240,240,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(240,240,240,0.03)_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none"></div>
-        <div className="absolute inset-0 opacity-10 pointer-events-none">
-          <div className="absolute -top-40 -right-40 w-[500px] h-[500px] bg-primary rounded-full blur-3xl"></div>
-          <div className="absolute -bottom-40 -left-40 w-[500px] h-[500px] bg-orange-600 rounded-full blur-3xl"></div>
+    <div className="bg-black text-gray-200 min-h-screen">
+      
+      {/* 2. HERO SECTION */}
+      <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden border-b border-dark-border/40 py-16">
+        {/* Full-width Highway Background Image */}
+        <div className="absolute inset-0 z-0">
+          <img
+            src="https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=1600&q=80"
+            alt="Sports bike on highway"
+            className="w-full h-full object-cover opacity-80"
+          />
+          {/* Radial Dark Gradient Mask Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-r from-black/95 via-black/80 to-transparent"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
         </div>
-        
-        <div className="max-w-4xl mx-auto space-y-6 relative z-10">
-          <div className="inline-flex items-center space-x-2 bg-primary/10 border border-primary/30 px-4 py-2 rounded-full text-xs font-black text-primary tracking-widest uppercase">
-            <Trophy className="w-4.5 h-4.5 text-primary" />
-            <span>MOTO-INTELLIGENCE PLATFORM</span>
-          </div>
-          
-          <h1 className="text-5xl sm:text-7xl font-black tracking-tighter text-white leading-none">
-            BIKE<span className="text-primary font-black">AI</span> ECOSYSTEM
-          </h1>
-          <p className="text-lg sm:text-xl font-bold text-gray-400 tracking-tight">
-            Next-Gen Indian Marketplace & Telemetry Predictor
-          </p>
-          
-          <p className="text-base text-gray-400 max-w-2xl mx-auto leading-relaxed">
-            Configure your ride parameters in Rupees (₹) and Kilometers (km). From checking resale factors to logging garage service tickets, optimize your motor experience using explainable ML.
-          </p>
 
-          <div className="flex flex-col sm:flex-row justify-center items-center gap-4 pt-6">
-            <Link
-              to="/marketplace"
-              className="w-full sm:w-auto bg-primary hover:bg-primary-hover text-white px-8 py-4 rounded-xl font-extrabold text-sm uppercase tracking-wider transition-all duration-200 shadow-lg shadow-orange-500/25 flex items-center justify-center space-x-2 border border-orange-400/20"
-            >
-              <Search className="w-4.5 h-4.5" />
-              <span>Explore Showroom</span>
-            </Link>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full grid lg:grid-cols-12 gap-12 items-center">
+          {/* Left Hero Texts - Center/Left layout */}
+          <div className="lg:col-span-8 space-y-6 text-left">
+            <div className="text-primary text-xs font-black tracking-widest uppercase font-serif">
+              THE ULTIMATE
+            </div>
             
-            {!isAuthenticated ? (
+            <h1 className="text-5xl sm:text-7xl font-black tracking-tight text-white leading-none uppercase font-serif">
+              Smart Bike <br />
+              Decisions <br />
+              <span className="text-primary">Powered by AI</span>
+            </h1>
+            
+            <p className="text-sm sm:text-base text-gray-400 max-w-lg leading-relaxed font-semibold">
+              Buy, sell, and manage bikes with intelligent insights. Make analytics-backed pricing evaluations instantly.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 pt-4">
               <Link
-                to="/signup"
-                className="w-full sm:w-auto bg-slate-900 border border-dark-border hover:border-gray-500 text-gray-200 hover:text-white px-8 py-4 rounded-xl font-extrabold text-sm uppercase tracking-wider transition-all duration-200 flex items-center justify-center space-x-2"
+                to="/marketplace"
+                className="bg-primary hover:bg-primary-hover text-black px-8 py-4 rounded-lg font-black text-xs uppercase tracking-widest transition-all duration-200 flex items-center justify-center space-x-2"
               >
-                <span>Register Ride</span>
+                <span>Explore Bikes</span>
                 <ArrowRight className="w-4 h-4" />
               </Link>
-            ) : (
+              
               <Link
                 to="/create-listing"
-                className="w-full sm:w-auto bg-slate-900 border border-dark-border hover:border-primary text-gray-200 hover:text-white px-8 py-4 rounded-xl font-extrabold text-sm uppercase tracking-wider transition-all duration-200 flex items-center justify-center space-x-2"
+                className="bg-transparent hover:bg-white/5 border-2 border-primary text-white px-8 py-4 rounded-lg font-black text-xs uppercase tracking-widest transition-colors flex items-center justify-center"
               >
-                <span>Sell a Bike</span>
-                <ArrowRight className="w-4 h-4 text-primary" />
+                <span>Sell Your Bike</span>
               </Link>
-            )}
+            </div>
+          </div>
+
+          {/* Right Hero: Floating gold menu card matching reference image */}
+          <div className="lg:col-span-4 flex justify-center lg:justify-end">
+            <div className="bg-black/80 backdrop-blur-md border border-primary/20 p-8 rounded-2xl shadow-2xl w-full max-w-sm space-y-8 relative overflow-hidden">
+              <div className="space-y-6">
+                <div className="flex items-center space-x-3 text-left">
+                  <Award className="w-5 h-5 text-primary shrink-0" />
+                  <div>
+                    <h4 className="text-[10px] text-primary font-black uppercase tracking-widest">AI INSIGHTS</h4>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-3 text-left">
+                  <Gauge className="w-5 h-5 text-primary shrink-0" />
+                  <div>
+                    <h4 className="text-[10px] text-primary font-black uppercase tracking-widest">REAL-TIME ANALYTICS</h4>
+                  </div>
+                </div>
+
+                <div className="flex items-center space-x-3 text-left">
+                  <ShieldCheck className="w-5 h-5 text-primary shrink-0" />
+                  <div>
+                    <h4 className="text-[10px] text-primary font-black uppercase tracking-widest">TRUSTED MARKETPLACE</h4>
+                  </div>
+                </div>
+              </div>
+
+              {/* Watermark logo */}
+              <div className="text-[28px] font-black text-white/5 uppercase tracking-widest text-center mt-6 font-serif select-none">
+                MOTRONIX
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Main Feature Cards Grid */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12 relative z-10">
-        <div className="text-center space-y-2">
-          <h2 className="text-3xl font-black text-white tracking-tight uppercase">AI Diagnostic Bays</h2>
-          <p className="text-gray-400 max-w-md mx-auto text-xs font-semibold">
-            Choose your diagnostic module below to check pricing, service forecasts, or telemetry stats.
-          </p>
+      {/* 3. AI FEATURES SECTION - Matches cream card layouts from provided reference image */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center py-20 space-y-16">
+        <div className="space-y-4">
+          <div className="flex items-center justify-center space-x-4">
+            <span className="w-8 h-[1px] bg-primary"></span>
+            <span className="text-primary text-xs font-black tracking-widest uppercase font-serif">INTEGRATED AI FEATURES</span>
+            <span className="w-8 h-[1px] bg-primary"></span>
+          </div>
+          
+          <h2 className="text-3xl sm:text-5xl font-black text-white leading-tight uppercase font-serif max-w-3xl mx-auto">
+            Experience our diagnostic stack designed <br />
+            to secure, evaluate, and recommendation-map your rides.
+          </h2>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8">
-          {features.map((feat) => {
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {aiFeatures.map((feat, idx) => {
             const Icon = feat.icon;
             return (
-              <div
-                key={feat.title}
-                className={`bg-slate-900/60 border rounded-2xl p-7 flex flex-col justify-between hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group ${feat.color}`}
+              <Link
+                key={idx}
+                to={feat.link}
+                className="bg-[#f4ebe1] border border-[#d6c7b5] rounded-xl p-6 text-left transition-all duration-300 hover:-translate-y-1.5 hover:shadow-2xl hover:shadow-primary/10 flex flex-col justify-between min-h-[300px] group"
               >
-                {/* Warning stripe badge accent in background */}
-                <div className="absolute top-0 right-0 bg-dark-border/40 text-[10px] font-black uppercase px-3.5 py-1.5 border-b border-l border-dark-border text-gray-400 group-hover:text-primary transition-colors">
-                  {feat.badge}
+                <div>
+                  {/* Gold vintage style icon container */}
+                  <div className="bg-[#eae0d2] border border-[#d6c7b5] p-3.5 rounded-xl text-[#8a6e4b] w-fit group-hover:scale-105 transition-transform duration-300">
+                    <Icon className="w-6 h-6 stroke-[1.5]" />
+                  </div>
+                  <h3 className="text-lg font-black text-[#2b251f] mt-6 uppercase tracking-wide font-serif">
+                    {feat.title}
+                  </h3>
+                  <p className="text-xs text-gray-700 mt-3 leading-relaxed font-semibold">
+                    {feat.desc}
+                  </p>
                 </div>
 
-                <div className="space-y-4 pt-2">
-                  <div className="bg-slate-950 p-4 rounded-xl w-fit border border-dark-border/80">
-                    <Icon className="w-7 h-7" />
-                  </div>
-                  <h3 className="text-2xl font-black text-white tracking-tight">{feat.title}</h3>
-                  <p className="text-sm text-gray-400 leading-relaxed font-medium">{feat.desc}</p>
-                </div>
-                
-                <Link
-                  to={feat.link}
-                  className="mt-8 flex items-center text-xs font-black uppercase tracking-wider text-gray-300 hover:text-white group space-x-2 w-fit bg-slate-950/80 hover:bg-primary border border-dark-border/60 hover:border-primary px-4 py-2.5 rounded-lg transition-all"
-                >
+                <div className="flex items-center space-x-1.5 text-xs text-[#8a6e4b] font-black uppercase tracking-wider mt-6 group-hover:underline">
                   <span>Access Terminal</span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                </Link>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* 6. WHY MOTRONIX SECTION - Mountain background texture matching screenshot */}
+      <section className="relative py-24 bg-gradient-to-b from-black via-neutral-950 to-black border-t border-dark-border/30 text-center space-y-16">
+        <div className="relative z-10 space-y-3">
+          <h2 className="text-4xl font-black text-white uppercase tracking-tight font-serif">Why Motronix</h2>
+          <div className="w-16 h-[2px] bg-primary mx-auto"></div>
+        </div>
+        
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid sm:grid-cols-3 gap-8 relative z-10">
+          {benefits.map((b, idx) => {
+            const Icon = b.icon;
+            return (
+              <div key={idx} className="space-y-4 bg-transparent border-r last:border-r-0 border-dark-border/20 px-6 text-center">
+                <div className="bg-primary/5 border border-primary/20 p-5 rounded-full text-primary w-fit mx-auto">
+                  <Icon className="w-6 h-6" />
+                </div>
+                <h3 className="text-lg font-black text-white uppercase tracking-wider font-serif">{b.title}</h3>
+                <p className="text-xs text-gray-400 leading-relaxed max-w-xs mx-auto font-semibold">{b.desc}</p>
               </div>
             );
           })}
         </div>
       </section>
 
-      {/* Synthetic Disclaimers */}
-      <section className="max-w-4xl mx-auto px-4 text-center">
-        <div className="bg-slate-900/50 border border-dark-border/80 rounded-2xl p-5 text-[11px] text-gray-500 leading-relaxed max-w-3xl mx-auto">
-          <strong>Diagnostic Disclaimer:</strong> All pricing predictions, fraud warnings, matching scores, and parts fatigue warnings are calculated using rule-based diagnostics and scikit-learn models. Users must verify all safety and physical conditions in a certified workshop before purchasing.
+      {/* 7. CALL TO ACTION (CTA) - Royal Enfield Mountain Sunset background style */}
+      <section className="relative min-h-[50vh] flex items-center justify-center overflow-hidden border-t border-b border-dark-border/20 py-20">
+        <div className="absolute inset-0 z-0">
+          <img
+            src="https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=1600&q=80"
+            alt="Royal Enfield sunset"
+            className="w-full h-full object-cover opacity-50"
+          />
+          <div className="absolute inset-0 bg-gradient-to-b from-black via-black/80 to-black"></div>
+        </div>
+
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-6 relative z-10">
+          <h2 className="text-4xl sm:text-6xl font-black text-white tracking-tight uppercase leading-none font-serif">
+            Find Your Perfect <br /> Bike Today
+          </h2>
+          <div className="w-16 h-[2px] bg-primary mx-auto my-2"></div>
+          <p className="text-xs sm:text-sm font-bold text-gray-300 max-w-xl mx-auto leading-relaxed tracking-tight">
+            Run the 10-parameter matchmaker wizard or check active diagnostic OBD logs under 2 minutes.
+          </p>
+
+          <div className="pt-4">
+            <Link
+              to="/recommendations"
+              className="bg-primary hover:bg-primary-hover text-black font-black px-8 py-4 rounded-lg text-xs uppercase tracking-widest transition-all inline-flex items-center space-x-2"
+            >
+              <span>Get Started</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
         </div>
       </section>
+
     </div>
   );
 };

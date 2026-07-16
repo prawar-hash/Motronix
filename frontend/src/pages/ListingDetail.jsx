@@ -6,6 +6,7 @@ import { AuthContext } from '../context/AuthContext';
 import PriceBadge from '../components/PriceBadge';
 import RiskBadge from '../components/RiskBadge';
 import { Calendar, Gauge, MapPin, Trash2, ArrowLeft, Loader2, Sparkles, User, AlertTriangle, ShieldCheck } from 'lucide-react';
+import BikeLoader from '../components/BikeLoader';
 
 const ListingDetail = () => {
   const { id } = useParams();
@@ -59,9 +60,8 @@ const ListingDetail = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center py-32 space-y-4">
-        <Loader2 className="w-10 h-10 text-primary animate-spin" />
-        <p className="text-gray-400 text-sm">Loading vehicle intelligence report...</p>
+      <div className="min-h-[400px] flex items-center justify-center">
+        <BikeLoader message="Loading vehicle intelligence report..." />
       </div>
     );
   }

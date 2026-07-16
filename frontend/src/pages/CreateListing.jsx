@@ -1,8 +1,23 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { listingsApi } from '../api/listingsApi';
 import { AuthContext } from '../context/AuthContext';
 import { Bike, Sparkles, Upload, Loader2, ArrowLeft, ShieldAlert, Check } from 'lucide-react';
+
+// Indian brand to models mapping catalog
+const BRAND_MODELS_MAP = {
+  'Royal Enfield': ['Classic 350', 'Bullet 350', 'Hunter 350', 'Meteor 350', 'Himalayan 450', 'Interceptor 650', 'Continental GT 650', 'Super Meteor 650', 'Shotgun 650'],
+  'KTM': ['Duke 125', 'Duke 200', 'Duke 250', 'Duke 390', 'RC 125', 'RC 200', 'RC 390', 'Adventure 250', 'Adventure 390'],
+  'Yamaha': ['R15 V4', 'MT-15 V2', 'FZ-S FI', 'FZ-X', 'R3', 'MT-03', 'Aerox 155', 'FZ25'],
+  'Bajaj': ['Pulsar 125', 'Pulsar 150', 'Pulsar NS160', 'Pulsar NS200', 'Pulsar N250', 'Pulsar F250', 'Avenger Cruise 220', 'Dominar 250', 'Dominar 400', 'Pulsar 220F'],
+  'Hero': ['Splendor Plus', 'HF Deluxe', 'Passion Pro', 'Glamour', 'Super Splendor', 'Xpulse 200 4V', 'Xpulse 200T', 'Xoom', 'Mavrick 440', 'Karizma XMR'],
+  'Honda': ['Activa 6G', 'SP 125', 'Shine 125', 'Unicorn', 'Hornet 2.0', 'CB200X', 'CB350 H\'ness', 'CB350RS', 'XL750 Transalp', 'Africa Twin'],
+  'Suzuki': ['Access 125', 'Burgman Street', 'Gixxer 150', 'Gixxer SF 150', 'Gixxer 250', 'Gixxer SF 250', 'V-Strom SX 250', 'Hayabusa', 'Katana'],
+  'Kawasaki': ['Ninja 300', 'Ninja 400', 'Ninja 500', 'Ninja 650', 'Z650', 'Versys 650', 'Ninja ZX-6R', 'Ninja ZX-10R', 'Z900'],
+  'Triumph': ['Speed 400', 'Scrambler 400X', 'Trident 660', 'Tiger Sport 660', 'Tiger 900 GT', 'Street Triple R', 'Street Triple RS', 'Speed Triple 1200'],
+  'Harley-Davidson': ['X440', 'Nightster', 'Sportster S', 'Fat Boy', 'Pan America 1250'],
+  'Other': []
+};
 
 // Indian-calibrated local pricing formula for immediate user feedback
 const calculateMockFairPrice = (brand, year, mileage, condition) => {
@@ -14,7 +29,7 @@ const calculateMockFairPrice = (brand, year, mileage, condition) => {
   };
   const condScores = { 'Poor': 1, 'Fair': 2, 'Good': 3, 'Excellent': 4 };
   
-  const brand_clean = String(brand || 'other').trim().lower();
+  const brand_clean = String(brand || 'other').trim().toLowerCase();
   const current_year = 2026;
   const age = Math.max(0, current_year - parseInt(year || current_year));
   const cond_score = condScores[condition] || 3;
@@ -36,7 +51,8 @@ const CreateListing = () => {
 
   // Form states
   const [brand, setBrand] = useState('Royal Enfield');
-  const [model, setModel] = useState('');
+  const [selectedModel, setSelectedModel] = useState('');
+  const [customModel, setCustomModel] = useState('');
   const [year, setYear] = useState('2024');
   const [mileage, setMileage] = useState('');
   const [condition, setCondition] = useState('Good');
@@ -50,9 +66,21 @@ const CreateListing = () => {
   const [submitLoading, setSubmitLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // List arrays
-  const brandsList = ['Royal Enfield', 'KTM', 'Yamaha', 'Bajaj', 'Hero', 'Honda', 'Suzuki', 'Kawasaki', 'Triumph', 'Harley-Davidson', 'Other'];
-  const citiesList = ['Mumbai', 'Delhi', 'Bangalore', 'Pune', 'Chennai', 'Kolkata', 'Hyderabad', 'Ahmedabad'];
+  // Initialize model choice whenever brand changes
+  useEffect(() => {
+    const models = BRAND_MODELS_MAP[brand] || [];
+    if (models.length > 0) {
+      setSelectedModel(models[0]);
+    } else {
+      setSelectedModel('Other');
+    }
+    setCustomModel('');
+  }, [brand]);
+
+  // Combined model value helper
+  const getModelName = () => {
+    return selectedModel === 'Other' ? customModel : selectedModel;
+  };
 
   // Live price estimate
   const liveEstimate = (brand && year && mileage !== '') 
@@ -84,12 +112,18 @@ const CreateListing = () => {
     e.preventDefault();
     if (!isAuthenticated) return;
     
+    const finalModel = getModelName();
+    if (!finalModel || finalModel.trim() === '') {
+      setError("Please specify a bike model.");
+      return;
+    }
+
     setSubmitLoading(true);
     setError(null);
 
     const payload = {
       brand,
-      model: model.trim(),
+      model: finalModel.trim(),
       year: parseInt(year),
       mileage: parseFloat(mileage),
       condition,
@@ -133,6 +167,8 @@ const CreateListing = () => {
     );
   }
 
+  const modelsAvailable = BRAND_MODELS_MAP[brand] || [];
+
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
       {/* Header */}
@@ -156,31 +192,46 @@ const CreateListing = () => {
           )}
 
           <div className="grid sm:grid-cols-2 gap-4">
-            {/* Brand */}
+            {/* Brand Select */}
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Brand</label>
+              <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Brand (Company)</label>
               <select
                 value={brand}
                 onChange={(e) => setBrand(e.target.value)}
                 className="w-full bg-slate-950 border border-dark-border rounded-xl py-3 px-4 text-white text-sm focus:outline-none focus:border-primary"
               >
-                {brandsList.map(b => <option key={b} value={b}>{b}</option>)}
+                {Object.keys(BRAND_MODELS_MAP).map(b => <option key={b} value={b}>{b}</option>)}
               </select>
             </div>
             
-            {/* Model */}
+            {/* Model Select */}
             <div className="space-y-1.5">
-              <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Model Name</label>
+              <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Model Selection</label>
+              <select
+                value={selectedModel}
+                onChange={(e) => setSelectedModel(e.target.value)}
+                className="w-full bg-slate-950 border border-dark-border text-white rounded-xl py-3 px-4 text-sm focus:outline-none focus:border-primary"
+              >
+                {modelsAvailable.map(m => <option key={m} value={m}>{m}</option>)}
+                <option value="Other">Other (Type custom model name)</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Conditional model input field for Other */}
+          {selectedModel === 'Other' && (
+            <div className="space-y-1.5 animate-fade-in">
+              <label className="text-xs font-bold text-gray-400 uppercase tracking-wide text-primary">Specify Custom Model</label>
               <input
                 type="text"
                 required
-                placeholder="e.g. Classic 350, Pulsar 150"
-                value={model}
-                onChange={(e) => setModel(e.target.value)}
-                className="w-full bg-slate-950 border border-dark-border rounded-xl py-3 px-4 text-white text-sm focus:outline-none focus:border-primary"
+                placeholder="Type custom model name (e.g. Speed 400)..."
+                value={customModel}
+                onChange={(e) => setCustomModel(e.target.value)}
+                className="w-full bg-slate-950 border border-primary/50 rounded-xl py-3 px-4 text-white text-sm focus:outline-none focus:border-primary"
               />
             </div>
-          </div>
+          )}
 
           <div className="grid sm:grid-cols-3 gap-4">
             {/* Year */}
@@ -234,7 +285,7 @@ const CreateListing = () => {
                 onChange={(e) => setCity(e.target.value)}
                 className="w-full bg-slate-950 border border-dark-border text-white rounded-xl py-3 px-4 text-sm focus:outline-none focus:border-primary"
               >
-                {citiesList.map(c => <option key={c} value={c}>{c}</option>)}
+                {['Mumbai', 'Delhi', 'Bangalore', 'Pune', 'Chennai', 'Kolkata', 'Hyderabad', 'Ahmedabad'].map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
 

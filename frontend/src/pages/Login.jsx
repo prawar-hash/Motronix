@@ -1,7 +1,20 @@
 import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import { Bike, Mail, Lock, ShieldAlert } from 'lucide-react';
+import { Bike, Mail, Lock, ShieldAlert, Apple, Phone } from 'lucide-react';
+import BikeLoader from '../components/BikeLoader';
+
+const GoogleIcon = () => (
+  <svg className="w-4 h-4 text-orange-500 shrink-0" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12.24 10.285V14.4h6.887c-.648 2.41-2.519 4.114-6.887 4.114-4.68 0-8.472-3.84-8.472-8.514S7.56 1.486 12.24 1.486c2.146 0 4.1.79 5.612 2.083l3.228-3.228C18.665.86 15.65 0 12.24 0 5.58 0 0 5.58 0 12.24s5.58 12.24 12.24 12.24c7.666 0 12.308-5.385 12.308-12.514 0-.742-.083-1.442-.236-2.185H12.24z"/>
+  </svg>
+);
+
+const FacebookIcon = () => (
+  <svg className="w-4 h-4 text-indigo-500 shrink-0" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+  </svg>
+);
 
 const Login = () => {
   const { login } = useContext(AuthContext);
@@ -29,6 +42,30 @@ const Login = () => {
     }
   };
 
+  const handleSocialClick = (platform) => {
+    setLoading(true);
+    setError(null);
+    setTimeout(() => {
+      // Mock OAuth login bypass
+      login("rider@motronix.com", "devpass123").then(() => {
+        navigate('/marketplace');
+      }).catch(() => {
+        setError(`Failed to authenticate with ${platform}.`);
+        setLoading(false);
+      });
+    }, 2000);
+  };
+
+  if (loading) {
+    return (
+      <div className="max-w-md mx-auto my-12 px-4">
+        <div className="bg-dark-surface border border-dark-border rounded-2xl p-8 shadow-xl text-center flex flex-col items-center justify-center min-h-[300px]">
+          <BikeLoader message="Authenticating Rider Profile..." />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-md mx-auto my-12 px-4">
       <div className="bg-dark-surface border border-dark-border rounded-2xl p-8 shadow-xl space-y-6">
@@ -37,7 +74,7 @@ const Login = () => {
           <div className="inline-flex bg-primary/10 border border-primary/20 p-3 rounded-xl text-primary mb-2">
             <Bike className="w-8 h-8" />
           </div>
-          <h2 className="text-2xl font-black text-white">Welcome Back</h2>
+          <h2 className="text-2xl font-black text-white">Welcome to Motronix</h2>
           <p className="text-sm text-gray-400">Sign in to list bikes, see recommendations, and track maintenance.</p>
         </div>
 
@@ -60,7 +97,7 @@ const Login = () => {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="rider@bikeai.com"
+                placeholder="rider@motronix.com"
                 className="w-full bg-dark-bg border border-dark-border rounded-xl py-3 pl-11 pr-4 text-white text-sm focus:outline-none focus:border-primary transition-colors"
               />
             </div>
@@ -83,12 +120,54 @@ const Login = () => {
 
           <button
             type="submit"
-            disabled={loading}
-            className="w-full bg-primary hover:bg-primary-hover disabled:bg-gray-600 text-white font-bold py-3.5 rounded-xl transition-all duration-200 shadow-lg shadow-orange-500/15"
+            className="w-full bg-primary hover:bg-primary-hover text-white font-bold py-3.5 rounded-xl transition-all duration-200 shadow-lg shadow-orange-500/15"
           >
-            {loading ? 'Authenticating...' : 'Sign In'}
+            Sign In
           </button>
         </form>
+
+        {/* Divider */}
+        <div className="relative flex items-center justify-center my-4">
+          <div className="absolute inset-x-0 h-[1px] bg-dark-border"></div>
+          <span className="relative bg-dark-surface px-3.5 text-[10px] font-bold text-gray-500 uppercase tracking-widest">
+            OR CONTINUE WITH
+          </span>
+        </div>
+
+        {/* Social Authentication Options */}
+        <div className="grid grid-cols-2 gap-3">
+          <button
+            onClick={() => handleSocialClick('Google')}
+            className="flex items-center justify-center space-x-2 bg-slate-900 border border-dark-border hover:border-orange-500 text-gray-300 hover:text-white py-2.5 px-3 rounded-xl text-xs font-bold transition-all"
+          >
+            <GoogleIcon />
+            <span>Google</span>
+          </button>
+          
+          <button
+            onClick={() => handleSocialClick('Facebook')}
+            className="flex items-center justify-center space-x-2 bg-slate-900 border border-dark-border hover:border-indigo-500 text-gray-300 hover:text-white py-2.5 px-3 rounded-xl text-xs font-bold transition-all"
+          >
+            <FacebookIcon />
+            <span>Facebook</span>
+          </button>
+          
+          <button
+            onClick={() => handleSocialClick('Apple')}
+            className="flex items-center justify-center space-x-2 bg-slate-950 border border-dark-border hover:border-white text-gray-300 hover:text-white py-2.5 px-3 rounded-xl text-xs font-bold col-span-2 transition-all"
+          >
+            <Apple className="w-4 h-4 text-white" />
+            <span>Sign in with Apple</span>
+          </button>
+
+          <button
+            onClick={() => handleSocialClick('Mobile OTP')}
+            className="flex items-center justify-center space-x-2 bg-slate-900 border border-dark-border/60 hover:border-primary text-gray-400 hover:text-white py-2.5 px-3 rounded-xl text-xs font-bold col-span-2 transition-all"
+          >
+            <Phone className="w-4 h-4 text-primary" />
+            <span>Continue with Mobile OTP</span>
+          </button>
+        </div>
 
         {/* Footer info */}
         <div className="text-center pt-4 border-t border-dark-border/40">

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react';
 import { ridingStyleApi } from '../api/ridingStyleApi';
 import { AuthContext } from '../context/AuthContext';
 import { Activity, Upload, Loader2, Sparkles, AlertTriangle, ShieldCheck, Download, Calendar, ShieldAlert } from 'lucide-react';
+import BikeLoader from '../components/BikeLoader';
 
 const RidingStyleAnalyzer = () => {
   const { isAuthenticated } = useContext(AuthContext);
@@ -129,47 +130,46 @@ const RidingStyleAnalyzer = () => {
               <span>Upload Ride Telemetry Log</span>
             </h2>
 
-            <form onSubmit={handleUploadSubmit} className="space-y-4">
-              <div className="border-2 border-dashed border-dark-border hover:border-primary/50 rounded-2xl p-8 text-center bg-dark-bg/20 transition-colors flex flex-col items-center justify-center space-y-2 relative">
-                <Upload className="w-10 h-10 text-gray-500 mb-2" />
-                <p className="text-sm font-bold text-white">
-                  {uploadFile ? uploadFile.name : 'Drag and drop your CSV ride log here'}
-                </p>
-                <p className="text-xs text-gray-500">Only CSV files under 5MB are permitted.</p>
-                
-                <label className="bg-dark-border hover:bg-dark-border/80 text-gray-300 hover:text-white px-4 py-2 rounded-lg text-xs font-semibold mt-4 cursor-pointer transition-colors">
-                  <span>Browse File</span>
-                  <input
-                    type="file"
-                    accept=".csv"
-                    onChange={handleFileChange}
-                    className="hidden"
-                  />
-                </label>
-              </div>
-
-              {uploadError && (
-                <div className="bg-rose-500/10 border border-rose-500/20 text-rose-400 p-3 rounded-lg text-xs flex items-center space-x-2">
-                  <AlertTriangle className="w-4 h-4" />
-                  <span>{uploadError}</span>
+            {!uploading ? (
+              <form onSubmit={handleUploadSubmit} className="space-y-4">
+                <div className="border-2 border-dashed border-dark-border hover:border-primary/50 rounded-2xl p-8 text-center bg-dark-bg/20 transition-colors flex flex-col items-center justify-center space-y-2 relative">
+                  <Upload className="w-10 h-10 text-gray-500 mb-2" />
+                  <p className="text-sm font-bold text-white">
+                    {uploadFile ? uploadFile.name : 'Drag and drop your CSV ride log here'}
+                  </p>
+                  <p className="text-xs text-gray-500">Only CSV files under 5MB are permitted.</p>
+                  
+                  <label className="bg-dark-border hover:bg-dark-border/80 text-gray-300 hover:text-white px-4 py-2 rounded-lg text-xs font-semibold mt-4 cursor-pointer transition-colors">
+                    <span>Browse File</span>
+                    <input
+                      type="file"
+                      accept=".csv"
+                      onChange={handleFileChange}
+                      className="hidden"
+                    />
+                  </label>
                 </div>
-              )}
 
-              <button
-                type="submit"
-                disabled={uploading || !uploadFile}
-                className="w-full bg-primary hover:bg-primary-hover disabled:bg-gray-600 text-white font-bold py-3.5 rounded-xl text-sm transition-colors flex items-center justify-center"
-              >
-                {uploading ? (
-                  <div className="flex items-center space-x-1.5">
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>Analyzing Log Telemetry...</span>
+                {uploadError && (
+                  <div className="bg-rose-500/10 border border-rose-500/20 text-rose-400 p-3 rounded-lg text-xs flex items-center space-x-2">
+                    <AlertTriangle className="w-4 h-4" />
+                    <span>{uploadError}</span>
                   </div>
-                ) : (
-                  <span>Upload and Classify</span>
                 )}
-              </button>
-            </form>
+
+                <button
+                  type="submit"
+                  disabled={!uploadFile}
+                  className="w-full bg-primary hover:bg-primary-hover disabled:bg-gray-600 text-white font-bold py-3.5 rounded-xl text-sm transition-colors flex items-center justify-center"
+                >
+                  <span>Upload and Classify</span>
+                </button>
+              </form>
+            ) : (
+              <div className="py-6">
+                <BikeLoader message="Uploading and Classifying Telemetry..." />
+              </div>
+            )}
           </div>
 
           {/* Style Classifier Results */}
@@ -228,9 +228,7 @@ const RidingStyleAnalyzer = () => {
           </h2>
 
           {historyLoading ? (
-            <div className="flex justify-center py-6">
-              <Loader2 className="w-5 h-5 text-primary animate-spin" />
-            </div>
+            <BikeLoader message="Loading logs..." />
           ) : historyError ? (
             <div className="text-xs text-rose-400 py-2">{historyError}</div>
           ) : history.length === 0 ? (

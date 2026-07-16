@@ -9,7 +9,7 @@ class ServiceRecordSerializer(serializers.ModelSerializer):
         model = ServiceRecord
         fields = [
             'id', 'bike_owner', 'listing', 'service_date',
-            'service_type', 'mileage', 'cost', 'created_at'
+            'service_type', 'mileage', 'cost', 'brand', 'model', 'created_at'
         ]
 
     def validate_mileage(self, value):
@@ -27,3 +27,5 @@ class ServiceRecordSerializer(serializers.ModelSerializer):
 class MaintenancePredictQuerySerializer(serializers.Serializer):
     """Validates parameters for maintenance scheduling projection queries."""
     current_mileage = serializers.FloatField(min_value=0.0)
+    brand = serializers.CharField(required=False, default='Other')
+    model = serializers.CharField(required=False, default='Other')
