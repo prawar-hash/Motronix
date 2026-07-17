@@ -1,4 +1,4 @@
-# 🏍️ MOTRONIX – Smart Bike Ecosystem
+# 🏍️ pOTRONIX – Smart Bike Ecosystem
 
 > **Smart Bike Decisions. Powered by AI.**
 
