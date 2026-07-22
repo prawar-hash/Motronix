@@ -17,6 +17,12 @@ class BikeListing(SoftDeleteModel):
         ('Fair', 'Fair'),
     ]
 
+    VARIANT_CHOICES = [
+        ('Base', 'Base'),
+        ('Mid', 'Mid'),
+        ('Top', 'Top'),
+    ]
+
     seller = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.SET_NULL,
@@ -25,6 +31,11 @@ class BikeListing(SoftDeleteModel):
     )
     brand = models.CharField(max_length=100)
     model = models.CharField(max_length=100)
+    variant_type = models.CharField(
+        max_length=20,
+        choices=VARIANT_CHOICES,
+        default='Base'
+    )
     year = models.PositiveIntegerField()
     mileage = models.FloatField()
     condition = models.CharField(max_length=20, choices=CONDITION_CHOICES)

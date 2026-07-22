@@ -36,4 +36,10 @@ export const listingsApi = {
     const response = await apiClient.delete(`/listings/${id}/`);
     return response.data;
   },
+
+  // Retrieves the complete list of Indian cities from the database
+  getCities: async () => {
+    const response = await apiClient.get('/listings/cities/');
+    return response.data;
+  },
 };

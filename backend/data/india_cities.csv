@@ -1,0 +1,72 @@
+City,State,Latitude,Longitude,Tier,Population
+Mumbai,Maharashtra,19.076,72.8777,Tier 1,12442373
+Pune,Maharashtra,18.5204,73.8567,Tier 2,3124458
+Nagpur,Maharashtra,21.1458,79.0882,Tier 2,2405665
+Thane,Maharashtra,19.2183,72.9781,Tier 2,1841488
+Nashik,Maharashtra,19.9975,73.7898,Tier 2,1486053
+Aurangabad,Maharashtra,19.8762,75.3433,Tier 3,1175116
+Solapur,Maharashtra,17.6599,75.9064,Tier 3,951558
+Amravati,Maharashtra,20.9374,77.7796,Tier 3,647057
+Kolhapur,Maharashtra,16.705,74.2433,Tier 3,549236
+Navi Mumbai,Maharashtra,19.033,73.0297,Tier 2,1120547
+Delhi,Delhi,28.6139,77.209,Tier 1,11034555
+New Delhi,Delhi,28.6139,77.209,Tier 1,257856
+Noida,Uttar Pradesh,28.5355,77.391,Tier 2,637272
+Ghaziabad,Uttar Pradesh,28.6692,77.4538,Tier 2,1648643
+Gurugram,Haryana,28.4595,77.0266,Tier 2,876824
+Faridabad,Haryana,28.4089,77.3178,Tier 2,1414050
+Bangalore,Karnataka,12.9716,77.5946,Tier 1,8443675
+Mysore,Karnataka,12.2958,76.6394,Tier 3,893062
+Hubli,Karnataka,15.3647,75.124,Tier 3,943857
+Mangalore,Karnataka,12.9141,74.856,Tier 3,484785
+Belgaum,Karnataka,15.8497,74.4977,Tier 3,488157
+Chennai,Tamil Nadu,13.0827,80.2707,Tier 1,7088000
+Coimbatore,Tamil Nadu,11.0168,76.9558,Tier 2,1601538
+Madurai,Tamil Nadu,9.9252,78.1198,Tier 3,1017865
+Trichy,Tamil Nadu,10.7905,78.7047,Tier 3,916857
+Salem,Tamil Nadu,11.6643,78.146,Tier 3,829267
+Hyderabad,Telangana,17.385,78.4867,Tier 1,6731790
+Warangal,Telangana,17.9689,79.5941,Tier 3,811865
+Nizamabad,Telangana,18.6725,78.0941,Tier 3,311152
+Visakhapatnam,Andhra Pradesh,17.6868,83.184,Tier 2,1728128
+Vijayawada,Andhra Pradesh,16.5062,80.648,Tier 2,1034358
+Guntur,Andhra Pradesh,16.3067,80.4365,Tier 3,743654
+Tirupati,Andhra Pradesh,13.6288,79.4192,Tier 3,287482
+Ahmedabad,Gujarat,23.0225,72.5714,Tier 1,5577940
+Surat,Gujarat,21.1702,72.8311,Tier 2,4467797
+Vadodara,Gujarat,22.3072,73.1812,Tier 2,1670806
+Rajkot,Gujarat,22.3039,70.8022,Tier 3,1286678
+Gandhinagar,Gujarat,23.2156,72.6369,Tier 3,292167
+Kolkata,West Bengal,22.5726,88.3639,Tier 1,4496694
+Howrah,West Bengal,22.5958,88.2636,Tier 2,1077075
+Siliguri,West Bengal,26.7271,88.3953,Tier 3,705579
+Darjeeling,West Bengal,27.041,88.2627,Tier 3,120100
+Lucknow,Uttar Pradesh,26.8467,80.9462,Tier 2,2817105
+Kanpur,Uttar Pradesh,26.4499,80.3319,Tier 2,2765348
+Agra,Uttar Pradesh,27.1767,78.0081,Tier 3,1585704
+Varanasi,Uttar Pradesh,25.3176,82.9739,Tier 3,1198657
+Kanpur Nagar,Uttar Pradesh,26.4499,80.3319,Tier 3,110000
+Jaipur,Rajasthan,26.9124,75.7873,Tier 2,3046163
+Jodhpur,Rajasthan,26.2389,73.0243,Tier 3,1033918
+Udaipur,Rajasthan,24.5854,73.7125,Tier 3,451100
+Kota,Rajasthan,25.1825,75.8292,Tier 3,1001693
+Indore,Madhya Pradesh,22.7196,75.8577,Tier 2,1964086
+Bhopal,Madhya Pradesh,23.2599,77.4126,Tier 2,1798218
+Gwalior,Madhya Pradesh,26.2183,78.1828,Tier 3,1069276
+Jabalpur,Madhya Pradesh,23.1815,79.9864,Tier 3,1055597
+Ludhiana,Punjab,30.901,75.8573,Tier 2,1618879
+Amritsar,Punjab,31.634,74.8723,Tier 3,1132383
+Chandigarh,Union Territory,30.7333,76.7794,Tier 2,960787
+Panipat,Haryana,29.3909,76.9635,Tier 3,294292
+Kochi,Kerala,9.9312,76.2673,Tier 2,602046
+Thiruvananthapuram,Kerala,8.5241,76.9366,Tier 3,743688
+Kozhikode,Kerala,11.2588,75.7804,Tier 3,550440
+Bhubaneswar,Odisha,20.2961,85.8245,Tier 3,837737
+Raipur,Chhattisgarh,21.2514,81.6296,Tier 3,1010087
+Ranchi,Jharkhand,23.3441,85.3096,Tier 3,1073169
+Jamshedpur,Jharkhand,22.8046,86.2029,Tier 3,847347
+Patna,Bihar,25.5941,85.1376,Tier 2,1684222
+Guwahati,Assam,26.1445,91.7362,Tier 3,957352
+Srinagar,Jammu & Kashmir,34.0837,74.7973,Tier 3,1180570
+Dehradun,Uttarakhand,30.3165,78.0322,Tier 3,574840
+Panaji,Goa,15.4909,73.8278,Tier 3,114759

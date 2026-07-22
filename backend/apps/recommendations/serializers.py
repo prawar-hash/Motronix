@@ -58,6 +58,28 @@ class RecommendationQuerySerializer(serializers.Serializer):
     resale_importance = serializers.ChoiceField(choices=RESALE_IMPORTANCE_CHOICES)
     riding_area = serializers.ChoiceField(choices=RIDING_AREA_CHOICES)
 
+    # Optional Filter parameters (Step 7)
+    brand = serializers.CharField(required=False, allow_blank=True, default=None)
+    engine_cc = serializers.IntegerField(required=False, allow_null=True, default=None)
+    bike_type = serializers.CharField(required=False, allow_blank=True, default=None)
+    purpose = serializers.CharField(required=False, allow_blank=True, default=None)
+    fuel_type = serializers.CharField(required=False, allow_blank=True, default=None)
+    city = serializers.CharField(required=False, allow_blank=True, default=None)
+    state = serializers.CharField(required=False, allow_blank=True, default=None)
+    mileage = serializers.FloatField(required=False, allow_null=True, default=None)
+    seat_height = serializers.IntegerField(required=False, allow_null=True, default=None)
+    weight = serializers.IntegerField(required=False, allow_null=True, default=None)
+    abs_type = serializers.CharField(required=False, allow_blank=True, default=None)
+    bluetooth = serializers.CharField(required=False, allow_blank=True, default=None)
+    touring = serializers.BooleanField(required=False, default=None)
+    adventure = serializers.BooleanField(required=False, default=None)
+    sports = serializers.BooleanField(required=False, default=None)
+    cruiser = serializers.BooleanField(required=False, default=None)
+    scooter = serializers.BooleanField(required=False, default=None)
+    beginner = serializers.BooleanField(required=False, default=None)
+    intermediate = serializers.BooleanField(required=False, default=None)
+    expert = serializers.BooleanField(required=False, default=None)
+
 class CompareQuerySerializer(serializers.Serializer):
     """Validates candidate listing IDs for the side-by-side comparison feature."""
     listing_ids = serializers.ListField(

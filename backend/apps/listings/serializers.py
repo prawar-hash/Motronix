@@ -15,7 +15,7 @@ class BikeListingSerializer(serializers.ModelSerializer):
     class Meta:
         model = BikeListing
         fields = [
-            'id', 'seller', 'brand', 'model', 'year', 'mileage',
+            'id', 'seller', 'brand', 'model', 'variant_type', 'year', 'mileage',
             'condition', 'asking_price', 'predicted_price',
             'price_status', 'city', 'description', 'images', 'created_at'
         ]

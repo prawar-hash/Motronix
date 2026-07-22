@@ -20,7 +20,7 @@ const BRAND_MODELS_MAP = {
 };
 
 // Indian-calibrated local pricing formula for immediate user feedback
-const calculateMockFairPrice = (brand, year, mileage, condition) => {
+const calculateMockFairPrice = (brand, year, mileage, condition, variantType) => {
   const brandMultipliers = {
     'royal enfield': 1.1, 'ktm': 1.05, 'yamaha': 1.0,
     'bajaj': 0.85, 'hero': 0.8, 'honda': 1.0,
@@ -36,12 +36,13 @@ const calculateMockFairPrice = (brand, year, mileage, condition) => {
   
   const base_price = 150000.0;
   const brand_mult = brandMultipliers[brand_clean] || brandMultipliers['other'];
+  const variant_mult = { 'Base': 1.0, 'Mid': 1.08, 'Top': 1.18 }[variantType] || 1.0;
   
   const age_depreciation = age * 12000.0;
   const mileage_depreciation = parseFloat(mileage || 0) * 1.50; // ₹1.5 per km depreciation
   const condition_mult = cond_score / 3.0;
   
-  const predicted = (base_price * brand_mult - age_depreciation - mileage_depreciation) * condition_mult;
+  const predicted = (base_price * brand_mult * variant_mult - age_depreciation - mileage_depreciation) * condition_mult;
   return Math.max(15000.0, Math.round(predicted));
 };
 
@@ -58,8 +59,29 @@ const CreateListing = () => {
   const [condition, setCondition] = useState('Good');
   const [askingPrice, setAskingPrice] = useState('');
   const [city, setCity] = useState('Mumbai');
+  const [citiesList, setCitiesList] = useState(['Mumbai', 'Delhi', 'Bangalore', 'Pune', 'Chennai', 'Kolkata', 'Hyderabad', 'Ahmedabad']);
+  const [variantType, setVariantType] = useState('Base');
   const [description, setDescription] = useState('');
   const [images, setImages] = useState([]);
+
+  // Load cities list on mount
+  useEffect(() => {
+    const loadCities = async () => {
+      try {
+        const data = await listingsApi.getCities();
+        if (Array.isArray(data)) {
+          const names = data.map(item => item.city).sort();
+          setCitiesList(names);
+          if (names.length > 0 && !names.includes(city)) {
+            setCity(names[0]);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load cities:', err);
+      }
+    };
+    loadCities();
+  }, []);
   
   // App states
   const [uploading, setUploading] = useState(false);
@@ -84,7 +106,7 @@ const CreateListing = () => {
 
   // Live price estimate
   const liveEstimate = (brand && year && mileage !== '') 
-    ? calculateMockFairPrice(brand, year, mileage, condition) 
+    ? calculateMockFairPrice(brand, year, mileage, condition, variantType) 
     : 0;
 
   const handleImageUpload = async (e) => {
@@ -124,6 +146,7 @@ const CreateListing = () => {
     const payload = {
       brand,
       model: finalModel.trim(),
+      variant_type: variantType,
       year: parseInt(year),
       mileage: parseFloat(mileage),
       condition,
@@ -276,7 +299,7 @@ const CreateListing = () => {
             </div>
           </div>
 
-          <div className="grid sm:grid-cols-2 gap-4">
+          <div className="grid sm:grid-cols-3 gap-4">
             {/* City */}
             <div className="space-y-1.5">
               <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Metro Area</label>
@@ -285,7 +308,21 @@ const CreateListing = () => {
                 onChange={(e) => setCity(e.target.value)}
                 className="w-full bg-slate-950 border border-dark-border text-white rounded-xl py-3 px-4 text-sm focus:outline-none focus:border-primary"
               >
-                {['Mumbai', 'Delhi', 'Bangalore', 'Pune', 'Chennai', 'Kolkata', 'Hyderabad', 'Ahmedabad'].map(c => <option key={c} value={c}>{c}</option>)}
+                {citiesList.map(c => <option key={c} value={c}>{c}</option>)}
+              </select>
+            </div>
+
+            {/* Variant Type */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-gray-400 uppercase tracking-wide">Variant Type</label>
+              <select
+                value={variantType}
+                onChange={(e) => setVariantType(e.target.value)}
+                className="w-full bg-slate-950 border border-dark-border text-white rounded-xl py-3 px-4 text-sm focus:outline-none focus:border-primary"
+              >
+                <option value="Base">Base Model</option>
+                <option value="Mid">Mid-spec Model</option>
+                <option value="Top">Top-spec Model</option>
               </select>
             </div>
 

@@ -1,6 +1,8 @@
 import datetime
 import cloudinary.uploader
 from django.utils import timezone
+import os
+from rest_framework.decorators import action
 from rest_framework import viewsets, permissions, status, filters
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -16,6 +18,30 @@ class BikeListingViewSet(viewsets.ModelViewSet):
     queryset = BikeListing.objects.all().order_by('-created_at')
     serializer_class = BikeListingSerializer
     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    @action(detail=False, methods=['get'], permission_classes=[permissions.AllowAny])
+    def cities(self, request):
+        """Reads and returns the list of all Indian cities from india_cities.csv."""
+        import csv
+        csv_path = os.path.join(os.path.dirname(__file__), '..', '..', 'data', 'india_cities.csv')
+        cities_list = []
+        if os.path.exists(csv_path):
+            try:
+                with open(csv_path, 'r', encoding='utf-8') as f:
+                    reader = csv.DictReader(f)
+                    for row in reader:
+                        cities_list.append({
+                            'city': row['City'],
+                            'state': row['State'],
+                            'tier': row['Tier'],
+                            'population': int(row['Population'])
+                        })
+            except Exception:
+                pass
+        if not cities_list:
+            cities_list = [{'city': c, 'state': 'India', 'tier': 'Tier 1', 'population': 1000000} for c in ['Mumbai', 'Delhi', 'Bangalore', 'Pune', 'Chennai', 'Kolkata', 'Hyderabad', 'Ahmedabad']]
+            
+        return Response(cities_list, status=status.HTTP_200_OK)
 
     def get_queryset(self):
         """Applies search filters and returns active listings (excluding soft-deleted ones)."""
@@ -53,6 +79,7 @@ class BikeListingViewSet(viewsets.ModelViewSet):
         """Enriches the listing with ML price predictions and executes fraud scoring on save."""
         brand = serializer.validated_data.get('brand')
         model = serializer.validated_data.get('model')
+        variant_type = serializer.validated_data.get('variant_type', 'Base')
         year = serializer.validated_data.get('year')
         mileage = serializer.validated_data.get('mileage')
         condition = serializer.validated_data.get('condition')
@@ -60,7 +87,7 @@ class BikeListingViewSet(viewsets.ModelViewSet):
         description = serializer.validated_data.get('description', '')
 
         # 1. Decoupled ML Price Prediction call
-        pred_val = predict_fair_price(brand, model, year, mileage, condition)
+        pred_val = predict_fair_price(brand, model, year, mileage, condition, variant_type)
         status_val = evaluate_asking_price(asking_price, pred_val)
 
         # 2. Save listing under the authenticated seller

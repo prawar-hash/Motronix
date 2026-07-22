@@ -24,17 +24,7 @@ class RecommendationView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
             
         # Extract validated inputs
-        budget_min = serializer.validated_data['budget_min']
-        budget_max = serializer.validated_data['budget_max']
-        usage = serializer.validated_data['usage']
-        mileage_importance = serializer.validated_data['mileage_importance']
-        preferred_bike_type = serializer.validated_data['preferred_bike_type']
-        brand_preference = serializer.validated_data.get('brand_preference', '')
-        engine_power = serializer.validated_data['engine_power']
-        riding_priority = serializer.validated_data['riding_priority']
-        maintenance_budget = serializer.validated_data.get('maintenance_budget', None)
-        resale_importance = serializer.validated_data['resale_importance']
-        riding_area = serializer.validated_data['riding_area']
+        data = serializer.validated_data
         
         # Query active marketplace listings to include in recommendations
         active_listings = BikeListing.objects.all()
@@ -56,18 +46,8 @@ class RecommendationView(APIView):
             
         # Execute matching logic
         ranked_results = recommend_bikes_indian(
-            budget_min=budget_min,
-            budget_max=budget_max,
-            usage=usage,
-            mileage_importance=mileage_importance,
-            preferred_bike_type=preferred_bike_type,
-            brand_preference=brand_preference,
-            engine_power=engine_power,
-            riding_priority=riding_priority,
-            maintenance_budget=maintenance_budget,
-            resale_importance=resale_importance,
-            riding_area=riding_area,
-            candidates=candidates
+            candidates=candidates,
+            **data
         )
         
         return Response(ranked_results, status=status.HTTP_200_OK)
